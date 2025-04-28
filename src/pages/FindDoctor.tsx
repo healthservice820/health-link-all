@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { MapPin, Calendar, Clock, Stethoscope } from "lucide-react";
 
 const FindDoctor = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSpecialty, setSelectedSpecialty] = useState("all");
+  const [selectedSpecialty, setSelectedSpecialty] = useState("all specialists");
 
   const doctors = [
     {
@@ -52,6 +52,24 @@ const FindDoctor = () => {
     "Orthopedic",
   ];
 
+  // Filter doctors based on search query and selected specialty
+  const filteredDoctors = useMemo(() => {
+    return doctors.filter((doctor) => {
+      // Filter by search query
+      const matchesSearch = 
+        searchQuery === "" || 
+        doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Filter by specialty
+      const matchesSpecialty = 
+        selectedSpecialty === "all specialists" || 
+        doctor.specialty.toLowerCase() === selectedSpecialty.toLowerCase();
+      
+      return matchesSearch && matchesSpecialty;
+    });
+  }, [searchQuery, selectedSpecialty, doctors]);
+
   return (
     <Layout>
       <div className="container py-16">
@@ -87,53 +105,59 @@ const FindDoctor = () => {
           </div>
 
           <div className="flex-1">
-            <div className="grid grid-cols-1 gap-6">
-              {doctors.map((doctor) => (
-                <Card key={doctor.id} className="overflow-hidden">
-                  <CardContent className="p-6">
-                    <div className="flex gap-6">
-                      <img
-                        src={doctor.image}
-                        alt={doctor.name}
-                        className="w-32 h-32 object-cover rounded-lg"
-                      />
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-xl font-semibold mb-1">{doctor.name}</h3>
-                            <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                              <Stethoscope className="h-4 w-4" />
-                              <span>{doctor.specialty}</span>
+            {filteredDoctors.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No doctors found matching your criteria.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {filteredDoctors.map((doctor) => (
+                  <Card key={doctor.id} className="overflow-hidden">
+                    <CardContent className="p-6">
+                      <div className="flex gap-6">
+                        <img
+                          src={doctor.image}
+                          alt={doctor.name}
+                          className="w-32 h-32 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="text-xl font-semibold mb-1">{doctor.name}</h3>
+                              <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                                <Stethoscope className="h-4 w-4" />
+                                <span>{doctor.specialty}</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-semibold">{doctor.rating} ⭐</div>
+                              <div className="text-sm text-muted-foreground">
+                                {doctor.reviews} reviews
+                              </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="font-semibold">{doctor.rating} ⭐</div>
-                            <div className="text-sm text-muted-foreground">
-                              {doctor.reviews} reviews
+
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-healthcare-primary" />
+                              <span className="text-sm">{doctor.distance}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-healthcare-primary" />
+                              <span className="text-sm">{doctor.availability}</span>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-healthcare-primary" />
-                            <span className="text-sm">{doctor.distance}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-healthcare-primary" />
-                            <span className="text-sm">{doctor.availability}</span>
-                          </div>
+                          <Button className="bg-healthcare-primary hover:bg-healthcare-accent">
+                            Book Appointment
+                          </Button>
                         </div>
-
-                        <Button className="bg-healthcare-primary hover:bg-healthcare-accent">
-                          Book Appointment
-                        </Button>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

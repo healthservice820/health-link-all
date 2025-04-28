@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { MapPin, Calendar, Clock } from "lucide-react";
 
 const Diagnostics = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all tests");
 
   const tests = [
     {
@@ -52,6 +52,25 @@ const Diagnostics = () => {
     "Pathology",
   ];
 
+  // Filter tests based on search query and selected category
+  const filteredTests = useMemo(() => {
+    return tests.filter((test) => {
+      // Filter by search query
+      const matchesSearch = 
+        searchQuery === "" || 
+        test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        test.lab.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        test.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Filter by category
+      const matchesCategory = 
+        selectedCategory === "all tests" || 
+        test.category.toLowerCase() === selectedCategory.toLowerCase();
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory, tests]);
+
   return (
     <Layout>
       <div className="container py-16">
@@ -87,50 +106,56 @@ const Diagnostics = () => {
           </div>
 
           <div className="flex-1">
-            <div className="grid grid-cols-1 gap-6">
-              {tests.map((test) => (
-                <Card key={test.id}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold mb-1">{test.name}</h3>
-                        <p className="text-sm text-muted-foreground">{test.category}</p>
+            {filteredTests.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No tests found matching your criteria.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {filteredTests.map((test) => (
+                  <Card key={test.id}>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-xl font-semibold mb-1">{test.name}</h3>
+                          <p className="text-sm text-muted-foreground">{test.category}</p>
+                        </div>
+                        <div className="text-2xl font-semibold text-healthcare-primary">
+                          {test.price}
+                        </div>
                       </div>
-                      <div className="text-2xl font-semibold text-healthcare-primary">
-                        {test.price}
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-healthcare-primary" />
-                          <span className="text-sm">{test.lab}</span>
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-healthcare-primary" />
+                            <span className="text-sm">{test.lab}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-healthcare-primary" />
+                            <span className="text-sm">{test.distance}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-healthcare-primary" />
-                          <span className="text-sm">{test.distance}</span>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-healthcare-primary" />
+                            <span className="text-sm">{test.nextSlot}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-healthcare-primary" />
+                            <span className="text-sm">Duration: {test.duration}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-healthcare-primary" />
-                          <span className="text-sm">{test.nextSlot}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-healthcare-primary" />
-                          <span className="text-sm">Duration: {test.duration}</span>
-                        </div>
-                      </div>
-                    </div>
 
-                    <Button className="w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                      Book Now
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      <Button className="w-full bg-healthcare-primary hover:bg-healthcare-accent">
+                        Book Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
