@@ -3,7 +3,8 @@ import React from "react";
 import { 
   Heart, 
   Stethoscope, 
-  FilePresentation, 
+  File, 
+  Presentation, 
   Pill, 
   MapPin, 
   CalendarCheck 
@@ -27,7 +28,7 @@ const Features = () => {
       description: "Consult with qualified healthcare professionals via video, voice, or text."
     },
     {
-      icon: <FilePresentation className="h-6 w-6 text-healthcare-primary" />,
+      icon: <Presentation className="h-6 w-6 text-healthcare-primary" />,
       title: "Diagnostic Tests",
       description: "Find available slots for lab tests like MRIs, X-rays, CT scans, and blood work near you."
     },

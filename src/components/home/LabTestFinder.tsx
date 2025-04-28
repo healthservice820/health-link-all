@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FilePresentation, MapPin, CalendarCheck, Clock, ArrowRight } from "lucide-react";
+import { Presentation, File, MapPin, CalendarCheck, Clock, ArrowRight } from "lucide-react";
 
 const LabTestFinder = () => {
   // Mock lab test data
@@ -58,7 +58,7 @@ const LabTestFinder = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-healthcare-light">
-                      <FilePresentation className="h-5 w-5 text-healthcare-primary" />
+                      <File className="h-5 w-5 text-healthcare-primary" />
                     </div>
                     <div>
                       <h3 className="font-semibold">{test.name}</h3>

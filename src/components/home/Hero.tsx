@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Pill, FilePresentation } from "lucide-react";
+import { Heart, Users, Pill, File, Presentation } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -51,7 +51,7 @@ const Hero = () => {
               
               <div className="flex flex-col items-center text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-healthcare-light border border-healthcare-primary/20">
-                  <FilePresentation className="h-6 w-6 text-healthcare-primary" />
+                  <Presentation className="h-6 w-6 text-healthcare-primary" />
                 </div>
                 <p className="mt-2 text-sm font-medium">1000+ Labs</p>
               </div>
@@ -85,7 +85,7 @@ const Hero = () => {
               <div className="absolute -bottom-6 -left-6 rounded-lg bg-white p-4 shadow-lg">
                 <div className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-healthcare-light">
-                    <FilePresentation className="h-5 w-5 text-healthcare-primary" />
+                    <File className="h-5 w-5 text-healthcare-primary" />
                   </div>
                   <div>
                     <p className="text-sm font-medium">AI-Powered</p>
