@@ -47,7 +47,7 @@ const Navbar = () => {
           <Button
             variant="outline"
             size="sm"
-            className="hidden md:flex items-center gap-1 text-gray-100 border-gray-700 hover:bg-gray-800"
+            className="hidden md:flex items-center gap-1 text-black border-gray-700 hover:bg-gray-800 hover:text-white"
             asChild
           >
             <Link to="/login">
