@@ -21,7 +21,7 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-gray-900 text-white backdrop-blur supports-[backdrop-filter]:bg-gray-900/90">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
@@ -36,7 +36,7 @@ const Navbar = () => {
             <Link
               key={link.path}
               to={link.path}
-              className="text-sm font-medium transition-colors hover:text-healthcare-primary"
+              className="text-sm font-medium transition-colors hover:text-healthcare-primary text-gray-200"
             >
               {link.name}
             </Link>
@@ -47,7 +47,7 @@ const Navbar = () => {
           <Button
             variant="outline"
             size="sm"
-            className="hidden md:flex items-center gap-1"
+            className="hidden md:flex items-center gap-1 text-gray-200 border-gray-700 hover:bg-gray-800"
             asChild
           >
             <Link to="/login">
@@ -67,7 +67,7 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="md:hidden text-gray-200 hover:bg-gray-800"
             onClick={toggleMobileMenu}
           >
             {isMobileMenuOpen ? (
@@ -82,7 +82,7 @@ const Navbar = () => {
       {/* Mobile Navigation Menu */}
       <div
         className={cn(
-          "md:hidden fixed inset-0 top-16 z-50 bg-background flex flex-col p-6 transition-transform duration-300",
+          "md:hidden fixed inset-0 top-16 z-50 bg-gray-900 flex flex-col p-6 transition-transform duration-300",
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
@@ -91,7 +91,7 @@ const Navbar = () => {
             <Link
               key={link.path}
               to={link.path}
-              className="text-base font-medium transition-colors hover:text-healthcare-primary"
+              className="text-base font-medium transition-colors hover:text-healthcare-primary text-gray-200"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.name}
@@ -100,7 +100,7 @@ const Navbar = () => {
           <div className="mt-4 flex flex-col gap-2">
             <Button
               variant="outline"
-              className="w-full justify-center"
+              className="w-full justify-center text-gray-200 border-gray-700 hover:bg-gray-800"
               asChild
             >
               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
