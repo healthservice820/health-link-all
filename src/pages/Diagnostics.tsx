@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,21 +51,18 @@ const Diagnostics = () => {
     "Pathology",
   ];
 
-  // Filter tests based on search query and selected category
   const filteredTests = useMemo(() => {
     return tests.filter((test) => {
-      // Filter by search query
-      const matchesSearch = 
-        searchQuery === "" || 
+      const matchesSearch =
+        searchQuery === "" ||
         test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         test.lab.toLowerCase().includes(searchQuery.toLowerCase()) ||
         test.category.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // Filter by category
-      const matchesCategory = 
-        selectedCategory === "all tests" || 
+
+      const matchesCategory =
+        selectedCategory === "all tests" ||
         test.category.toLowerCase() === selectedCategory.toLowerCase();
-      
+
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory, tests]);
@@ -74,7 +70,7 @@ const Diagnostics = () => {
   return (
     <Layout>
       <div className="container py-16">
-        <div className="max-w-3xl mx-auto text-center mb-12">
+        <div className="max-w-3xl mx-auto text-center mb-12 px-4">
           <h1 className="text-3xl font-bold mb-4">Book Diagnostic Tests</h1>
           <p className="text-muted-foreground mb-8">
             Find and book diagnostic tests at labs near you
@@ -86,16 +82,20 @@ const Diagnostics = () => {
           />
         </div>
 
-        <div className="flex gap-8">
-          <div className="w-64 shrink-0">
-            <div className="sticky top-24">
+        <div className="flex flex-col lg:flex-row gap-8 px-4">
+          <div className="lg:w-64 w-full">
+            <div className="lg:sticky top-24">
               <h3 className="font-semibold mb-4">Categories</h3>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2">
                 {categories.map((category) => (
                   <Button
                     key={category}
-                    variant={selectedCategory === category.toLowerCase() ? "default" : "ghost"}
-                    className="w-full justify-start"
+                    variant={
+                      selectedCategory === category.toLowerCase()
+                        ? "default"
+                        : "ghost"
+                    }
+                    className="justify-start"
                     onClick={() => setSelectedCategory(category.toLowerCase())}
                   >
                     {category}
@@ -111,7 +111,7 @@ const Diagnostics = () => {
                 No tests found matching your criteria.
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredTests.map((test) => (
                   <Card key={test.id}>
                     <CardContent className="p-6">
@@ -125,7 +125,7 @@ const Diagnostics = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-healthcare-primary" />

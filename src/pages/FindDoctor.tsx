@@ -1,10 +1,9 @@
-
 import React, { useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import SearchInput from "@/components/shared/SearchInput";
-import { MapPin, Calendar, Clock, Stethoscope } from "lucide-react";
+import { MapPin, Calendar, Stethoscope } from "lucide-react";
 
 const FindDoctor = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,23 +51,20 @@ const FindDoctor = () => {
     "Orthopedic",
   ];
 
-  // Filter doctors based on search query and selected specialty
   const filteredDoctors = useMemo(() => {
     return doctors.filter((doctor) => {
-      // Filter by search query
-      const matchesSearch = 
-        searchQuery === "" || 
+      const matchesSearch =
+        searchQuery === "" ||
         doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doctor.specialty.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // Filter by specialty
-      const matchesSpecialty = 
-        selectedSpecialty === "all specialists" || 
+
+      const matchesSpecialty =
+        selectedSpecialty === "all specialists" ||
         doctor.specialty.toLowerCase() === selectedSpecialty.toLowerCase();
-      
+
       return matchesSearch && matchesSpecialty;
     });
-  }, [searchQuery, selectedSpecialty, doctors]);
+  }, [searchQuery, selectedSpecialty]);
 
   return (
     <Layout>
@@ -85,15 +81,20 @@ const FindDoctor = () => {
           />
         </div>
 
-        <div className="flex gap-8">
-          <div className="w-64 shrink-0">
+        {/* Responsive Layout */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="w-full lg:w-64 shrink-0">
             <div className="sticky top-24">
               <h3 className="font-semibold mb-4">Specialties</h3>
               <div className="space-y-2">
                 {specialties.map((specialty) => (
                   <Button
                     key={specialty}
-                    variant={selectedSpecialty === specialty.toLowerCase() ? "default" : "ghost"}
+                    variant={
+                      selectedSpecialty === specialty.toLowerCase()
+                        ? "default"
+                        : "ghost"
+                    }
                     className="w-full justify-start"
                     onClick={() => setSelectedSpecialty(specialty.toLowerCase())}
                   >
@@ -110,18 +111,18 @@ const FindDoctor = () => {
                 No doctors found matching your criteria.
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-6">
                 {filteredDoctors.map((doctor) => (
                   <Card key={doctor.id} className="overflow-hidden">
                     <CardContent className="p-6">
-                      <div className="flex gap-6">
+                      <div className="flex flex-col sm:flex-row gap-6">
                         <img
                           src={doctor.image}
                           alt={doctor.name}
-                          className="w-32 h-32 object-cover rounded-lg"
+                          className="w-full sm:w-32 h-32 object-cover rounded-lg"
                         />
                         <div className="flex-1">
-                          <div className="flex justify-between items-start">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                             <div>
                               <h3 className="text-xl font-semibold mb-1">{doctor.name}</h3>
                               <div className="flex items-center gap-2 text-muted-foreground mb-4">
@@ -129,7 +130,7 @@ const FindDoctor = () => {
                                 <span>{doctor.specialty}</span>
                               </div>
                             </div>
-                            <div className="text-right">
+                            <div className="sm:text-right mt-2 sm:mt-0">
                               <div className="font-semibold">{doctor.rating} ⭐</div>
                               <div className="text-sm text-muted-foreground">
                                 {doctor.reviews} reviews
@@ -137,7 +138,7 @@ const FindDoctor = () => {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div className="flex items-center gap-2">
                               <MapPin className="h-4 w-4 text-healthcare-primary" />
                               <span className="text-sm">{doctor.distance}</span>
