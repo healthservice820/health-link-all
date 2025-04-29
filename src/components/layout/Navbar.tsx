@@ -79,7 +79,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Navigation Menu with updated dark background */}
       <div
         className={cn(
           "md:hidden fixed inset-0 top-16 z-50 bg-gray-900 flex flex-col p-6 transition-transform duration-300",
@@ -91,7 +91,7 @@ const Navbar = () => {
             <Link
               key={link.path}
               to={link.path}
-              className="text-base font-medium transition-colors hover:text-healthcare-primary text-gray-200"
+              className="text-base font-medium transition-colors hover:text-healthcare-primary text-white"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.name}
@@ -100,7 +100,7 @@ const Navbar = () => {
           <div className="mt-4 flex flex-col gap-2">
             <Button
               variant="outline"
-              className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800"
+              className="w-full justify-center text-white border-gray-700 hover:bg-gray-800"
               asChild
             >
               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
