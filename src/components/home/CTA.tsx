@@ -40,7 +40,7 @@ const CTA = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="border-white text-white hover:bg-white/10"
+                  className="border-white text-healthcare-primary hover:bg-white/10"
                 >
                   Learn More <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
