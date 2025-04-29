@@ -21,7 +21,7 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-gray-900 text-white backdrop-blur supports-[backdrop-filter]:bg-gray-900/90">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-800 bg-gray-900 text-white backdrop-blur supports-[backdrop-filter]:bg-gray-900/90">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
@@ -47,7 +47,7 @@ const Navbar = () => {
           <Button
             variant="outline"
             size="sm"
-            className="hidden md:flex items-center gap-1 text-gray-200 border-gray-700 hover:bg-gray-800"
+            className="hidden md:flex items-center gap-1 text-gray-100 border-gray-700 hover:bg-gray-800"
             asChild
           >
             <Link to="/login">
@@ -100,10 +100,11 @@ const Navbar = () => {
           <div className="mt-4 flex flex-col gap-2">
             <Button
               variant="outline"
-              className="w-full justify-center text-gray-200 border-gray-700 hover:bg-gray-800"
+              className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800"
               asChild
             >
               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <User className="h-4 w-4 mr-2" />
                 Sign In
               </Link>
             </Button>
