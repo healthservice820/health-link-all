@@ -189,53 +189,24 @@ const Navbar = () => {
           
           {/* Mobile Auth Buttons */}
           <div className="mt-4 flex flex-col gap-2">
-            {user ? (
-              <>
-                <div className="p-3 rounded-md bg-gray-800 mb-2">
-                  <p className="text-base font-medium text-white">{getUserName()}</p>
-                  <p className="text-sm text-gray-400">{getUserRole()}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
-                  onClick={navigateToProfile}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  My Profile
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
-                  asChild
-                >
-                  <Link to="/login" onClick={closeMobileMenu}>
-                    <User className="h-4 w-4 mr-2" />
-                    Sign In
-                  </Link>
-                </Button>
-                <Button
-                  className="w-full justify-center bg-healthcare-primary hover:bg-healthcare-accent"
-                  asChild
-                >
-                  <Link to="/register" onClick={closeMobileMenu}>
-                    Sign Up
-                  </Link>
-                </Button>
-              </>
-            )}
-          </div>
-        </nav>
+            <Button
+              variant="outline"
+              className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white text-black"
+              asChild
+            >
+              <Link to="/login" onClick={closeMobileMenu}>
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Link>
+            </Button>
+            <Button
+              className="w-full justify-center bg-healthcare-primary hover:bg-healthcare-accent"
+              asChild
+            >
+              <Link to="/register" onClick={closeMobileMenu}>
+                Sign Up
+              </Link>
+            </Button>
       </div>
     </header>
   );
