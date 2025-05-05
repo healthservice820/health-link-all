@@ -161,19 +161,19 @@ const Navbar = () => {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-70 z-[9998] md:hidden"
-          onClick={closeMobileMenu}
-          aria-hidden="true"
-        />
-      )}
+    className="fixed inset-0 bg-black bg-opacity-70 z-[9998] md:hidden"
+    onClick={closeMobileMenu}
+    aria-hidden="true"
+  />
+)}
       
       {/* Mobile Menu */}
-      <div
-        style={{ backgroundColor: '#111827' }}
-        className={cn(
-          "md:hidden fixed inset-0 z-[9999] bg-gray-900 flex flex-col p-6 transition-transform duration-300 transform",
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-        )}
+     <div
+  style={{ backgroundColor: '#111827' }} // Strong gray-900 fallback
+  className={cn(
+    "md:hidden fixed inset-0 z-[9999] bg-gray-900 flex flex-col p-6 h-fit  transition-transform duration-300 transform",
+    isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+  )}
       >
         <nav className="flex flex-col gap-4 grow">
           {navLinks.map((link) => (
