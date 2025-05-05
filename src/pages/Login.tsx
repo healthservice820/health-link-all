@@ -8,6 +8,7 @@ import { Link, Navigate } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,8 +22,17 @@ const Login = () => {
     
     try {
       await signIn(email, password);
-    } catch (error) {
+      // Success toast is handled in the AuthContext
+    } catch (error: any) {
       console.error("Login error:", error);
+      // Show specific error messages based on error code
+      if (error.message.includes("Email not confirmed")) {
+        toast.error("Please verify your email before logging in");
+      } else if (error.message.includes("Invalid login credentials")) {
+        toast.error("Invalid email or password");
+      } else {
+        toast.error(error.message || "Failed to log in");
+      }
     } finally {
       setIsLoading(false);
     }
