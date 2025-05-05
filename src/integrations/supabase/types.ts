@@ -9,7 +9,209 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      diagnostic_centers: {
+        Row: {
+          address: string
+          center_name: string
+          created_at: string
+          home_sample_collection: boolean | null
+          id: string
+          license_number: string
+          operating_hours: string | null
+          tests_offered: Json | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          center_name: string
+          created_at?: string
+          home_sample_collection?: boolean | null
+          id: string
+          license_number: string
+          operating_hours?: string | null
+          tests_offered?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          center_name?: string
+          created_at?: string
+          home_sample_collection?: boolean | null
+          id?: string
+          license_number?: string
+          operating_hours?: string | null
+          tests_offered?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostic_centers_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doctors: {
+        Row: {
+          available_for_appointments: boolean | null
+          consultation_fee: number | null
+          created_at: string
+          experience_years: number | null
+          id: string
+          license_number: string
+          qualification: string
+          specialty: string
+          updated_at: string
+        }
+        Insert: {
+          available_for_appointments?: boolean | null
+          consultation_fee?: number | null
+          created_at?: string
+          experience_years?: number | null
+          id: string
+          license_number: string
+          qualification: string
+          specialty: string
+          updated_at?: string
+        }
+        Update: {
+          available_for_appointments?: boolean | null
+          consultation_fee?: number | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          license_number?: string
+          qualification?: string
+          specialty?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctors_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          blood_group: string | null
+          created_at: string
+          date_of_birth: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          gender: string | null
+          id: string
+          medical_history: string | null
+          updated_at: string
+        }
+        Insert: {
+          blood_group?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          gender?: string | null
+          id: string
+          medical_history?: string | null
+          updated_at?: string
+        }
+        Update: {
+          blood_group?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          gender?: string | null
+          id?: string
+          medical_history?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pharmacies: {
+        Row: {
+          address: string
+          created_at: string
+          delivers_medicine: boolean | null
+          id: string
+          license_number: string
+          operating_hours: string | null
+          pharmacy_name: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          delivers_medicine?: boolean | null
+          id: string
+          license_number: string
+          operating_hours?: string | null
+          pharmacy_name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          delivers_medicine?: boolean | null
+          id?: string
+          license_number?: string
+          operating_hours?: string | null
+          pharmacy_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pharmacies_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone_text: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone_text?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone_text?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +220,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "patient" | "doctor" | "pharmacy" | "diagnostics" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +335,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["patient", "doctor", "pharmacy", "diagnostics", "admin"],
+    },
   },
 } as const
