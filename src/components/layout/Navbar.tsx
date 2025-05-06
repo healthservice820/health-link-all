@@ -57,6 +57,11 @@ const Navbar = () => {
     navigate("/profile");
     closeMobileMenu();
   };
+  
+  const navigateToDashboard = () => {
+    navigate("/dashboard");
+    closeMobileMenu();
+  };
 
   const getUserName = () => {
     if (profile) {
@@ -113,6 +118,9 @@ const Navbar = () => {
                 <DropdownMenuLabel>{getUserName()}</DropdownMenuLabel>
                 <DropdownMenuLabel className="text-xs text-muted-foreground">{getUserRole()}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={navigateToDashboard}>
+                  Dashboard
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={navigateToProfile}>
                   Profile
                 </DropdownMenuItem>
@@ -161,21 +169,32 @@ const Navbar = () => {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-    className="fixed inset-0 bg-black bg-opacity-70 z-[9998] md:hidden"
-    onClick={closeMobileMenu}
-    aria-hidden="true"
-  />
-)}
+          className="fixed inset-0 bg-black bg-opacity-70 z-[9998] md:hidden"
+          onClick={closeMobileMenu}
+          aria-hidden="true"
+        />
+      )}
       
       {/* Mobile Menu */}
-     <div
-  style={{ backgroundColor: '#111827' }} // Strong gray-900 fallback
-  className={cn(
-    "md:hidden fixed inset-0 z-[9999] bg-gray-900 flex flex-col p-6 h-fit  transition-transform duration-300 transform",
-    isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-  )}
+      <div
+        style={{ backgroundColor: '#111827' }}
+        className={cn(
+          "md:hidden fixed inset-y-0 right-0 z-[9999] bg-gray-900 flex flex-col p-6 w-64 transition-transform duration-300 transform",
+          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}
       >
-        <nav className="flex flex-col gap-4 grow">
+        <div className="flex justify-end mb-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={closeMobileMenu}
+            className="text-gray-200"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <nav className="flex flex-col gap-4">
           {navLinks.map((link) => (
             <Link
               key={link.path}
@@ -186,27 +205,62 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          
-          {/* Mobile Auth Buttons */}
-          <div className="mt-4 flex flex-col gap-2">
-            <Button
-              variant="outline"
-              className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white text-black"
-              asChild
+
+          {user && (
+            <Link
+              to="/dashboard"
+              className="text-base font-medium text-white hover:text-healthcare-primary py-3 px-2 border-b border-gray-800"
+              onClick={closeMobileMenu}
             >
-              <Link to="/login" onClick={closeMobileMenu}>
+              Dashboard
+            </Link>
+          )}
+        </nav>
+        
+        {/* Mobile Auth Buttons */}
+        <div className="mt-auto flex flex-col gap-2">
+          {user ? (
+            <>
+              <Button
+                variant="outline"
+                className="justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+                onClick={navigateToProfile}
+              >
                 <User className="h-4 w-4 mr-2" />
-                Sign In
-              </Link>
-            </Button>
-            <Button
-              className="w-full justify-center bg-healthcare-primary hover:bg-healthcare-accent"
-              asChild
-            >
-              <Link to="/register" onClick={closeMobileMenu}>
-                Sign Up
-              </Link>
-            </Button>
+                Profile
+              </Button>
+              <Button
+                variant="destructive"
+                className="justify-center"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                className="justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+                asChild
+              >
+                <Link to="/login" onClick={closeMobileMenu}>
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Link>
+              </Button>
+              <Button
+                className="justify-center bg-healthcare-primary hover:bg-healthcare-accent"
+                asChild
+              >
+                <Link to="/register" onClick={closeMobileMenu}>
+                  Sign Up
+                </Link>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

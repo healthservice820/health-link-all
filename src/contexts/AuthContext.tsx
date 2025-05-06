@@ -125,7 +125,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       toast.success("Logged in successfully!");
-      navigate("/");
+      
+      // Fetch user profile before redirecting
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
+      if (currentUser) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", currentUser.id)
+          .single();
+          
+        // Redirect based on role
+        if (profileData) {
+          navigate("/dashboard");
+        } else {
+          navigate("/");
+        }
+      } else {
+        navigate("/");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       throw error;

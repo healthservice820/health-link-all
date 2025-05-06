@@ -16,6 +16,14 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
+// Dashboard imports
+import DashboardRouter from "./components/dashboard/DashboardRouter";
+import PatientDashboard from "./pages/dashboard/PatientDashboard";
+import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
+import PharmacyDashboard from "./pages/dashboard/PharmacyDashboard";
+import DiagnosticsDashboard from "./pages/dashboard/DiagnosticsDashboard";
+import AmbulanceDashboard from "./pages/dashboard/AmbulanceDashboard";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -33,6 +41,15 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            
+            {/* Dashboard routes */}
+            <Route path="/dashboard" element={<DashboardRouter />} />
+            <Route path="/dashboard/patient" element={<PatientDashboard />} />
+            <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
+            <Route path="/dashboard/pharmacy" element={<PharmacyDashboard />} />
+            <Route path="/dashboard/diagnostics" element={<DiagnosticsDashboard />} />
+            <Route path="/dashboard/ambulance" element={<AmbulanceDashboard />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
