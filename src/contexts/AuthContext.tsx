@@ -155,6 +155,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             case "ambulance":
               navigate("/dashboard/ambulance");
               break;
+            case "admin":
+              navigate("/dashboard/admin");
+              break;
             default:
               navigate("/dashboard");
           }

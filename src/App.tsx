@@ -23,6 +23,7 @@ import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import PharmacyDashboard from "./pages/dashboard/PharmacyDashboard";
 import DiagnosticsDashboard from "./pages/dashboard/DiagnosticsDashboard";
 import AmbulanceDashboard from "./pages/dashboard/AmbulanceDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/dashboard/pharmacy" element={<PharmacyDashboard />} />
             <Route path="/dashboard/diagnostics" element={<DiagnosticsDashboard />} />
             <Route path="/dashboard/ambulance" element={<AmbulanceDashboard />} />
+            <Route path="/dashboard/admin" element={<AdminDashboard />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

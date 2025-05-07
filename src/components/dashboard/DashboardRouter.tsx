@@ -7,6 +7,7 @@ import DoctorDashboard from "@/pages/dashboard/DoctorDashboard";
 import PharmacyDashboard from "@/pages/dashboard/PharmacyDashboard";
 import DiagnosticsDashboard from "@/pages/dashboard/DiagnosticsDashboard";
 import AmbulanceDashboard from "@/pages/dashboard/AmbulanceDashboard";
+import AdminDashboard from "@/pages/dashboard/AdminDashboard";
 
 const DashboardRouter = () => {
   const { profile, isLoading } = useAuth();
@@ -31,6 +32,8 @@ const DashboardRouter = () => {
       return <Navigate to="/dashboard/diagnostics" />;
     case "ambulance":
       return <Navigate to="/dashboard/ambulance" />;
+    case "admin":
+      return <Navigate to="/dashboard/admin" />;
     default:
       return <Navigate to="/" />;
   }
