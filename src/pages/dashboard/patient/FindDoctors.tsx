@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Star, Phone, Video } from "lucide-react";
+import { MapPin, Star, Phone, Video, User } from "lucide-react";
 
 const FindDoctorsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");

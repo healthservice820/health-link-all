@@ -1,10 +1,9 @@
-
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Activity, Database, User, CreditCard, Heartbeat } from "lucide-react";
+import { Calendar, Users, Activity, Database, User, CreditCard, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
@@ -145,7 +144,7 @@ const PatientDashboard = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
-                <Heartbeat className="mr-2 h-5 w-5 text-healthcare-primary" />
+                <Heart className="mr-2 h-5 w-5 text-healthcare-primary" />
                 Pharmacy Services
               </CardTitle>
             </CardHeader>

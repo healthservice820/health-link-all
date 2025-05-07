@@ -1,11 +1,10 @@
-
 import React from "react";
 import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Video, User, Calendar, Clock, Check } from "lucide-react";
+import { Video, User, Calendar, Clock, Check, Plus } from "lucide-react";
 
 const TelemedicinePage = () => {
   // Mock data for upcoming consultations
