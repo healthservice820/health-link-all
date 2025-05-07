@@ -208,6 +208,8 @@ const Navbar = () => {
               </Link>
             </Button>
       </div>
+      </nav>
+      </div>
     </header>
   );
 };
