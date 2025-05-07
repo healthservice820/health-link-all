@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ambulance_services: {
+        Row: {
+          contact_number: string | null
+          created_at: string | null
+          id: string
+          license_number: string | null
+          service_name: string
+        }
+        Insert: {
+          contact_number?: string | null
+          created_at?: string | null
+          id: string
+          license_number?: string | null
+          service_name: string
+        }
+        Update: {
+          contact_number?: string | null
+          created_at?: string | null
+          id?: string
+          license_number?: string | null
+          service_name?: string
+        }
+        Relationships: []
+      }
       diagnostic_centers: {
         Row: {
           address: string
@@ -189,6 +213,7 @@ export type Database = {
           id: string
           last_name: string | null
           phone_text: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string
         }
         Insert: {
@@ -197,6 +222,7 @@ export type Database = {
           id: string
           last_name?: string | null
           phone_text?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
         }
         Update: {
@@ -205,6 +231,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone_text?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
         }
         Relationships: []
@@ -217,7 +244,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      user_role: "patient" | "doctor" | "pharmacy" | "diagnostics" | "admin"
+      user_role:
+        | "patient"
+        | "doctor"
+        | "pharmacy"
+        | "diagnostics"
+        | "admin"
+        | "ambulance"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -333,7 +366,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      user_role: ["patient", "doctor", "pharmacy", "diagnostics", "admin"],
+      user_role: [
+        "patient",
+        "doctor",
+        "pharmacy",
+        "diagnostics",
+        "admin",
+        "ambulance",
+      ],
     },
   },
 } as const
