@@ -1,13 +1,7 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import PatientDashboard from "@/pages/dashboard/PatientDashboard";
-import DoctorDashboard from "@/pages/dashboard/DoctorDashboard";
-import PharmacyDashboard from "@/pages/dashboard/PharmacyDashboard";
-import DiagnosticsDashboard from "@/pages/dashboard/DiagnosticsDashboard";
-import AmbulanceDashboard from "@/pages/dashboard/AmbulanceDashboard";
-import AdminDashboard from "@/pages/dashboard/AdminDashboard";
 
 const DashboardRouter = () => {
   const { profile, isLoading } = useAuth();

@@ -4,7 +4,7 @@ import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Activity, Database, User } from "lucide-react";
+import { Calendar, Users, Activity, Database, User, CreditCard, Heartbeat } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
@@ -107,7 +107,7 @@ const PatientDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">Schedule and manage your medical appointments</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/appointments">Manage Appointments</Link>
+                <Link to="/dashboard/patient/appointments">Manage Appointments</Link>
               </Button>
             </CardContent>
           </Card>
@@ -122,7 +122,7 @@ const PatientDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">Search for specialists and book consultations</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/find-doctor">Find Doctors</Link>
+                <Link to="/dashboard/patient/find-doctors">Find Doctors</Link>
               </Button>
             </CardContent>
           </Card>
@@ -137,7 +137,7 @@ const PatientDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">Access your medical history and test results</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/medical-records">View Records</Link>
+                <Link to="/dashboard/patient/medical-records">View Records</Link>
               </Button>
             </CardContent>
           </Card>
@@ -145,14 +145,14 @@ const PatientDashboard = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
-                <Database className="mr-2 h-5 w-5 text-healthcare-primary" />
+                <Heartbeat className="mr-2 h-5 w-5 text-healthcare-primary" />
                 Pharmacy Services
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">Order medications and track deliveries</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/pharmacy-services">Order Medications</Link>
+                <Link to="/dashboard/patient/pharmacy-services">Order Medications</Link>
               </Button>
             </CardContent>
           </Card>
@@ -167,7 +167,7 @@ const PatientDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">Book lab tests and view results</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/diagnostic-services">Book Tests</Link>
+                <Link to="/dashboard/patient/diagnostic-services">Book Tests</Link>
               </Button>
             </CardContent>
           </Card>
@@ -175,14 +175,14 @@ const PatientDashboard = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
-                <Database className="mr-2 h-5 w-5 text-healthcare-primary" />
+                <CreditCard className="mr-2 h-5 w-5 text-healthcare-primary" />
                 Payments
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">Manage bills and payment history</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/payments">Manage Payments</Link>
+                <Link to="/dashboard/patient/payments">Manage Payments</Link>
               </Button>
             </CardContent>
           </Card>
