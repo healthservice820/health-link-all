@@ -138,9 +138,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
         // Redirect based on role
         if (profileData) {
-          navigate("/dashboard");
+          // Navigate to the appropriate dashboard based on user role
+          switch (profileData.role) {
+            case "patient":
+              navigate("/dashboard/patient");
+              break;
+            case "doctor":
+              navigate("/dashboard/doctor");
+              break;
+            case "pharmacy":
+              navigate("/dashboard/pharmacy");
+              break;
+            case "diagnostics":
+              navigate("/dashboard/diagnostics");
+              break;
+            case "ambulance":
+              navigate("/dashboard/ambulance");
+              break;
+            default:
+              navigate("/dashboard");
+          }
         } else {
-          navigate("/");
+          navigate("/dashboard");
         }
       } else {
         navigate("/");

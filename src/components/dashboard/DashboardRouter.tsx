@@ -19,17 +19,18 @@ const DashboardRouter = () => {
     return <Navigate to="/login" />;
   }
 
+  // Direct users to their specific dashboard based on role
   switch (profile.role) {
     case "patient":
-      return <PatientDashboard />;
+      return <Navigate to="/dashboard/patient" />;
     case "doctor":
-      return <DoctorDashboard />;
+      return <Navigate to="/dashboard/doctor" />;
     case "pharmacy":
-      return <PharmacyDashboard />;
+      return <Navigate to="/dashboard/pharmacy" />;
     case "diagnostics":
-      return <DiagnosticsDashboard />;
+      return <Navigate to="/dashboard/diagnostics" />;
     case "ambulance":
-      return <AmbulanceDashboard />;
+      return <Navigate to="/dashboard/ambulance" />;
     default:
       return <Navigate to="/" />;
   }

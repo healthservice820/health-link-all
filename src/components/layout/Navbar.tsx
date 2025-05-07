@@ -175,13 +175,13 @@ const Navbar = () => {
         />
       )}
       
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Updated to be dark and non-transparent */}
       <div
-        style={{ backgroundColor: '#111827' }}
         className={cn(
           "md:hidden fixed inset-y-0 right-0 z-[9999] bg-gray-900 flex flex-col p-6 w-64 transition-transform duration-300 transform",
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
+        style={{ backgroundColor: '#111827' }} // Dark background, not transparent
       >
         <div className="flex justify-end mb-8">
           <Button
