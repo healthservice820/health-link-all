@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Menu, X, User, LogOut } from "lucide-react";
@@ -34,7 +33,6 @@ const Navbar = () => {
       document.body.style.overflow = "";
     }
 
-    // Cleanup on unmount
     return () => {
       document.body.style.overflow = "";
     };
@@ -57,7 +55,7 @@ const Navbar = () => {
     navigate("/profile");
     closeMobileMenu();
   };
-  
+
   const navigateToDashboard = () => {
     navigate("/dashboard");
     closeMobileMenu();
@@ -135,7 +133,7 @@ const Navbar = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="hidden md:flex items-center gap-1 hover:text-white text-gray-200 border-gray-700 hover:bg-gray-800"
+                className="hidden md:flex items-center gap-1 hover:text-white text-black border-gray-700 hover:bg-gray-800"
                 asChild
               >
                 <Link to="/login">
@@ -155,113 +153,109 @@ const Navbar = () => {
 
           {/* Mobile Menu Toggle */}
           <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-gray-200 z-[10000] hover:bg-gray-500"
-            onClick={toggleMobileMenu}
-            aria-label="Toggle Menu"
-          >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+  variant="ghost"
+  size="icon"
+  className="md:hidden text-gray-200 z-[10000] hover:bg-gray-500"
+  onClick={toggleMobileMenu}
+  aria-label="Open Menu"
+>
+  <Menu className="h-5 w-5" />
+</Button>
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-70 z-[9998] md:hidden"
-          onClick={closeMobileMenu}
-          aria-hidden="true"
-        />
-      )}
-      
-      {/* Mobile Menu - Updated to be dark and non-transparent */}
-      <div
-        className={cn(
-          "md:hidden fixed inset-y-0 right-0 z-[9999] bg-gray-900 flex flex-col p-6 w-64 transition-transform duration-300 transform",
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-        )}
-        style={{ backgroundColor: '#111827' }} // Dark background, not transparent
-      >
-        <div className="flex justify-end mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
+     {/* MOBILE MENU */}
+{/* MOBILE MENU */}
+{isMobileMenuOpen && (
+  <>
+    {/* FULL SCREEN OVERLAY */}
+    <div
+      className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm"
+      onClick={closeMobileMenu}
+    ></div>
+
+    {/* SLIDING MENU PANEL - height adjusts to content */}
+    <div
+      className="fixed top-16 right-0 w-3/4 max-w-xs z-[9999] bg-gray-900 text-white flex flex-col rounded-tl-lg shadow-xl overflow-hidden"
+    >
+      {/* Close Button */}
+      <div className="flex justify-end p-2">
+        <Button variant="ghost" size="icon" onClick={closeMobileMenu} className="text-gray-200">
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Navigation Links */}
+      <nav className="px-4 space-y-1 border-b border-gray-800">
+        {navLinks.map((link) => (
+          <Link
+            key={link.path}
+            to={link.path}
+            className="block py-3 px-3 text-base font-medium text-white hover:text-healthcare-primary border-b border-gray-800"
             onClick={closeMobileMenu}
-            className="text-gray-200"
           >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+            {link.name}
+          </Link>
+        ))}
 
-        <nav className="flex flex-col gap-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className="text-base font-medium text-white hover:text-healthcare-primary py-3 px-2 border-b border-gray-800"
-              onClick={closeMobileMenu}
-            >
-              {link.name}
-            </Link>
-          ))}
+        {user && (
+          <Link
+            to="/dashboard"
+            className="block py-3 px-3 text-base font-medium text-white hover:text-healthcare-primary border-b border-gray-800"
+            onClick={closeMobileMenu}
+          >
+            Dashboard
+          </Link>
+        )}
+      </nav>
 
-          {user && (
-            <Link
-              to="/dashboard"
-              className="text-base font-medium text-white hover:text-healthcare-primary py-3 px-2 border-b border-gray-800"
-              onClick={closeMobileMenu}
+      {/* Auth Buttons / Footer */}
+      <div className="p-4 space-y-3">
+        {user ? (
+          <>
+            <Button
+              variant="outline"
+              className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+              onClick={navigateToProfile}
             >
-              Dashboard
-            </Link>
-          )}
-        </nav>
-        
-        {/* Mobile Auth Buttons */}
-        <div className="mt-auto flex flex-col gap-2">
-          {user ? (
-            <>
-              <Button
-                variant="outline"
-                className="justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
-                onClick={navigateToProfile}
-              >
+              <User className="h-4 w-4 mr-2" />
+              Profile
+            </Button>
+            <Button
+              variant="destructive"
+              className="w-full justify-center"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              className="w-full justify-center text-black border-gray-700 hover:bg-gray-800 hover:text-white"
+              asChild
+            >
+              <Link to="/login" onClick={closeMobileMenu}>
                 <User className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
-              <Button
-                variant="destructive"
-                className="justify-center"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                className="justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
-                asChild
-              >
-                <Link to="/login" onClick={closeMobileMenu}>
-                  <User className="h-4 w-4 mr-2" />
-                  Sign In
-                </Link>
-              </Button>
-              <Button
-                className="justify-center bg-healthcare-primary hover:bg-healthcare-accent"
-                asChild
-              >
-                <Link to="/register" onClick={closeMobileMenu}>
-                  Sign Up
-                </Link>
-              </Button>
-            </>
-          )}
-        </div>
+                Sign In
+              </Link>
+            </Button>
+            <Button
+              className="w-full justify-center bg-healthcare-primary hover:bg-healthcare-accent"
+              asChild
+            >
+              <Link to="/register" onClick={closeMobileMenu}>
+                Sign Up
+              </Link>
+            </Button>
+          </>
+        )}
       </div>
+    </div>
+  </>
+)}
     </header>
   );
 };
