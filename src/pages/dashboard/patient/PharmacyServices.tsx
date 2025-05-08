@@ -1,14 +1,46 @@
 
-import React from "react";
+import React, { useState } from "react";
 import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ShoppingBag, Truck, Check, Clock, AlertCircle } from "lucide-react";
+import { ShoppingBag, Truck, Check, Clock, AlertCircle, Pill, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
 
 const PharmacyServicesPage = () => {
+  const { toast } = useToast();
+  const [showRefillDialog, setShowRefillDialog] = useState(false);
+  const [showRenewalDialog, setShowRenewalDialog] = useState(false);
+  const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const refillForm = useForm({
+    defaultValues: {
+      deliveryAddress: "",
+      deliveryInstructions: "",
+    }
+  });
+
+  const renewalForm = useForm({
+    defaultValues: {
+      reason: "",
+      doctorMessage: "",
+    }
+  });
+
   // Mock data for medication orders
   const medicationOrders = [
     { id: 1, medication: "Amoxicillin 500mg", quantity: "14 tablets", orderedDate: "2025-05-01", status: "Delivered", deliveryDate: "2025-05-03" },
@@ -22,6 +54,78 @@ const PharmacyServicesPage = () => {
     { id: 2, medication: "Loratadine 10mg", prescribedBy: "Dr. Michael Chen", date: "2025-04-10", refillsLeft: 5, status: "Active" },
     { id: 3, medication: "Ibuprofen 400mg", prescribedBy: "Dr. James Taylor", date: "2025-04-05", refillsLeft: 0, status: "Expired" },
   ];
+
+  const handleRequestRefill = (prescription: any) => {
+    setSelectedPrescription(prescription);
+    setShowRefillDialog(true);
+    refillForm.reset({
+      deliveryAddress: "",
+      deliveryInstructions: "",
+    });
+  };
+
+  const handleRequestRenewal = (prescription: any) => {
+    setSelectedPrescription(prescription);
+    setShowRenewalDialog(true);
+    renewalForm.reset({
+      reason: "",
+      doctorMessage: "",
+    });
+  };
+
+  const submitRefillRequest = async (data: any) => {
+    if (!selectedPrescription) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call to request refill
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Refill Requested",
+        description: `Your refill request for ${selectedPrescription.medication} has been submitted successfully.`,
+      });
+      
+      setShowRefillDialog(false);
+    } catch (error) {
+      console.error("Failed to request refill:", error);
+      toast({
+        title: "Request Failed",
+        description: "There was an error processing your refill request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const submitRenewalRequest = async (data: any) => {
+    if (!selectedPrescription) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call to request prescription renewal
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Renewal Requested",
+        description: `Your renewal request for ${selectedPrescription.medication} has been sent to ${selectedPrescription.prescribedBy}.`,
+      });
+      
+      setShowRenewalDialog(false);
+    } catch (error) {
+      console.error("Failed to request renewal:", error);
+      toast({
+        title: "Request Failed",
+        description: "There was an error processing your renewal request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <DashboardPageLayout title="Pharmacy Services" description="Order medications and track deliveries" role="patient">
@@ -97,7 +201,12 @@ const PharmacyServicesPage = () => {
               <TableBody>
                 {activePrescriptions.map((prescription) => (
                   <TableRow key={prescription.id}>
-                    <TableCell className="font-medium">{prescription.medication}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center">
+                        <Pill className="h-4 w-4 mr-2 text-healthcare-primary" />
+                        {prescription.medication}
+                      </div>
+                    </TableCell>
                     <TableCell>{prescription.prescribedBy}</TableCell>
                     <TableCell>{prescription.date}</TableCell>
                     <TableCell>{prescription.refillsLeft}</TableCell>
@@ -115,11 +224,22 @@ const PharmacyServicesPage = () => {
                         {prescription.status}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="space-x-2">
                       {prescription.status === "Active" && prescription.refillsLeft > 0 ? (
-                        <Button size="sm" className="bg-healthcare-primary hover:bg-healthcare-accent">Request Refill</Button>
+                        <Button 
+                          size="sm" 
+                          className="bg-healthcare-primary hover:bg-healthcare-accent"
+                          onClick={() => handleRequestRefill(prescription)}
+                        >
+                          Request Refill
+                        </Button>
                       ) : (
-                        <Button size="sm" variant="outline" disabled={prescription.status !== "Active"}>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          disabled={prescription.status !== "Active"}
+                          onClick={() => handleRequestRenewal(prescription)}
+                        >
                           Request Renewal
                         </Button>
                       )}
@@ -182,6 +302,156 @@ const PharmacyServicesPage = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Refill Request Dialog */}
+      <Dialog open={showRefillDialog} onOpenChange={setShowRefillDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Pill className="mr-2 h-5 w-5 text-healthcare-primary" />
+              Request Medication Refill
+            </DialogTitle>
+            <DialogDescription>
+              {selectedPrescription ? (
+                <>Requesting refill for {selectedPrescription.medication}</>
+              ) : (
+                <>Complete the form to request your medication refill</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...refillForm}>
+            <form onSubmit={refillForm.handleSubmit(submitRefillRequest)} className="space-y-4 py-4">
+              <FormField
+                control={refillForm.control}
+                name="deliveryAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Delivery Address</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Enter your full delivery address" 
+                        className="resize-none"
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={refillForm.control}
+                name="deliveryInstructions"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Delivery Instructions (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Any specific delivery instructions" 
+                        className="resize-none"
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowRefillDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-healthcare-primary hover:bg-healthcare-accent"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Request Refill"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Renewal Request Dialog */}
+      <Dialog open={showRenewalDialog} onOpenChange={setShowRenewalDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <FileText className="mr-2 h-5 w-5 text-healthcare-primary" />
+              Request Prescription Renewal
+            </DialogTitle>
+            <DialogDescription>
+              {selectedPrescription ? (
+                <>
+                  Request renewal for {selectedPrescription.medication} from {selectedPrescription.prescribedBy}
+                </>
+              ) : (
+                <>Complete the form to request prescription renewal</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...renewalForm}>
+            <form onSubmit={renewalForm.handleSubmit(submitRenewalRequest)} className="space-y-4 py-4">
+              <FormField
+                control={renewalForm.control}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reason for Renewal</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Briefly explain why you need this prescription renewed" 
+                        className="resize-none"
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={renewalForm.control}
+                name="doctorMessage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message for Doctor (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Any additional information for your doctor" 
+                        className="resize-none"
+                        {...field} 
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowRenewalDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="bg-healthcare-primary hover:bg-healthcare-accent"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Request Renewal"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </DashboardPageLayout>
   );
 };
