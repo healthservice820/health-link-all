@@ -127,7 +127,7 @@ const Navbar = () => {
                   {getUserName()}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 text-black">
                 <DropdownMenuLabel>{getUserName()}</DropdownMenuLabel>
                 <DropdownMenuLabel className="text-xs text-muted-foreground">{getUserRole()}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -223,62 +223,13 @@ const Navbar = () => {
               )}
             </nav>
 
-<<<<<<< HEAD
-  {/* Auth Buttons / Footer */}
-  <div className="p-4 space-y-3">
-    {user ? (
-      <>
-        <Button
-          variant="outline"
-          className="w-full justify-center text-black border-gray-700 hover:bg-gray-800 hover:text-white"
-          onClick={navigateToProfile}
-        >
-          <User className="h-4 w-4 mr-2 " />
-          Profile
-        </Button>
-        <Button
-          variant="destructive"
-          className="w-full justify-center"
-          onClick={handleSignOut}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
-      </>
-    ) : (
-      <>
-        <Button
-          variant="outline"
-          className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
-          asChild
-        >
-          <Link to="/login" onClick={closeMobileMenu}>
-            <User className="h-4 w-4 mr-2" />
-            Sign In
-          </Link>
-        </Button>
-        <Button
-          className="w-full justify-center bg-healthcare-primary hover:bg-healthcare-accent"
-          asChild
-        >
-          <Link to="/register" onClick={closeMobileMenu}>
-            Sign Up
-          </Link>
-        </Button>
-      </>
-    )}
-  </div>
-</div>
-  </>
-)}
-=======
             {/* Auth Buttons / Footer */}
             <div className="p-4 space-y-3">
               {user ? (
                 <>
                   <Button
                     variant="outline"
-                    className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+                    className="w-full justify-center text-black border-gray-700 hover:bg-gray-800 hover:text-white"
                     onClick={navigateToProfile}
                   >
                     <User className="h-4 w-4 mr-2" />
@@ -297,7 +248,7 @@ const Navbar = () => {
                 <>
                   <Button
                     variant="outline"
-                    className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+                    className="w-full justify-center text-black border-gray-700 hover:bg-gray-800 hover:text-white"
                     asChild
                   >
                     <Link to="/login" onClick={closeMobileMenu}>
@@ -319,7 +270,6 @@ const Navbar = () => {
           </div>
         </>
       )}
->>>>>>> 251e7db3ff02d12c4c92aae95fd40e11a9bd0caf
     </header>
   );
 };
