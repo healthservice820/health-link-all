@@ -132,7 +132,7 @@ const AdminReports = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip formatter={(value) => [formatNaira(value), 'Revenue']} />
+                  <Tooltip formatter={(value: any) => [formatNaira(Number(value)), 'Revenue']} />
                   <Line type="monotone" dataKey="revenue" stroke="#0891b2" strokeWidth={2} activeDot={{ r: 8 }} />
                 </LineChart>
               </ResponsiveContainer>
