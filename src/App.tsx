@@ -42,6 +42,37 @@ import DoctorLabOrders from "./pages/dashboard/doctor/DoctorLabOrders";
 import Telemedicine from "./pages/dashboard/doctor/Telemedicine";
 import Earnings from "./pages/dashboard/doctor/Earnings";
 
+// Pharmacy dashboard pages
+import PharmacyPrescriptions from "./pages/dashboard/pharmacy/PharmacyPrescriptions";
+import PharmacyInventory from "./pages/dashboard/pharmacy/PharmacyInventory";
+import PharmacyCustomers from "./pages/dashboard/pharmacy/PharmacyCustomers";
+import PharmacyDeliveries from "./pages/dashboard/pharmacy/PharmacyDeliveries";
+import PharmacySuppliers from "./pages/dashboard/pharmacy/PharmacySuppliers";
+import PharmacyReports from "./pages/dashboard/pharmacy/PharmacyReports";
+import PharmacyEmergencyStock from "./pages/dashboard/pharmacy/PharmacyEmergencyStock";
+
+// Diagnostics dashboard pages
+import DiagnosticsAppointments from "./pages/dashboard/diagnostics/DiagnosticsAppointments";
+import DiagnosticsResults from "./pages/dashboard/diagnostics/DiagnosticsResults";
+import DiagnosticsPatients from "./pages/dashboard/diagnostics/DiagnosticsPatients";
+import DiagnosticsSampleCollection from "./pages/dashboard/diagnostics/DiagnosticsSampleCollection";
+import DiagnosticsPartners from "./pages/dashboard/diagnostics/DiagnosticsPartners";
+import DiagnosticsReports from "./pages/dashboard/diagnostics/DiagnosticsReports";
+
+// Ambulance dashboard pages
+import AmbulanceCalls from "./pages/dashboard/ambulance/AmbulanceCalls";
+import AmbulanceFleet from "./pages/dashboard/ambulance/AmbulanceFleet";
+import AmbulanceHistory from "./pages/dashboard/ambulance/AmbulanceHistory";
+import AmbulanceStaff from "./pages/dashboard/ambulance/AmbulanceStaff";
+import AmbulanceHospitals from "./pages/dashboard/ambulance/AmbulanceHospitals";
+import AmbulanceMaintenance from "./pages/dashboard/ambulance/AmbulanceMaintenance";
+
+// Admin dashboard pages
+import AdminUsers from "./pages/dashboard/admin/AdminUsers";
+import AdminDoctors from "./pages/dashboard/admin/AdminDoctors";
+import AdminReports from "./pages/dashboard/admin/AdminReports";
+import AdminSettings from "./pages/dashboard/admin/AdminSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -82,11 +113,40 @@ const App = () => (
             <Route path="/dashboard/doctor/telemedicine" element={<Telemedicine />} />
             <Route path="/dashboard/doctor/earnings" element={<Earnings />} />
             
-            {/* Other dashboard routes */}
+            {/* Pharmacy dashboard routes */}
             <Route path="/dashboard/pharmacy" element={<PharmacyDashboard />} />
+            <Route path="/dashboard/pharmacy/prescriptions" element={<PharmacyPrescriptions />} />
+            <Route path="/dashboard/pharmacy/inventory" element={<PharmacyInventory />} />
+            <Route path="/dashboard/pharmacy/customers" element={<PharmacyCustomers />} />
+            <Route path="/dashboard/pharmacy/deliveries" element={<PharmacyDeliveries />} />
+            <Route path="/dashboard/pharmacy/suppliers" element={<PharmacySuppliers />} />
+            <Route path="/dashboard/pharmacy/reports" element={<PharmacyReports />} />
+            <Route path="/dashboard/pharmacy/emergency-stock" element={<PharmacyEmergencyStock />} />
+            
+            {/* Diagnostics dashboard routes */}
             <Route path="/dashboard/diagnostics" element={<DiagnosticsDashboard />} />
+            <Route path="/dashboard/diagnostics/appointments" element={<DiagnosticsAppointments />} />
+            <Route path="/dashboard/diagnostics/results" element={<DiagnosticsResults />} />
+            <Route path="/dashboard/diagnostics/patients" element={<DiagnosticsPatients />} />
+            <Route path="/dashboard/diagnostics/sample-collection" element={<DiagnosticsSampleCollection />} />
+            <Route path="/dashboard/diagnostics/partners" element={<DiagnosticsPartners />} />
+            <Route path="/dashboard/diagnostics/reports" element={<DiagnosticsReports />} />
+            
+            {/* Ambulance dashboard routes */}
             <Route path="/dashboard/ambulance" element={<AmbulanceDashboard />} />
+            <Route path="/dashboard/ambulance/calls" element={<AmbulanceCalls />} />
+            <Route path="/dashboard/ambulance/fleet" element={<AmbulanceFleet />} />
+            <Route path="/dashboard/ambulance/history" element={<AmbulanceHistory />} />
+            <Route path="/dashboard/ambulance/staff" element={<AmbulanceStaff />} />
+            <Route path="/dashboard/ambulance/hospitals" element={<AmbulanceHospitals />} />
+            <Route path="/dashboard/ambulance/maintenance" element={<AmbulanceMaintenance />} />
+            
+            {/* Admin dashboard routes */}
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
+            <Route path="/dashboard/admin/users" element={<AdminUsers />} />
+            <Route path="/dashboard/admin/doctors" element={<AdminDoctors />} />
+            <Route path="/dashboard/admin/reports" element={<AdminReports />} />
+            <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
