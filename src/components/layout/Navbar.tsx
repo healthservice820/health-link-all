@@ -210,10 +210,10 @@ const Navbar = () => {
       <>
         <Button
           variant="outline"
-          className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+          className="w-full justify-center text-black border-gray-700 hover:bg-gray-800 hover:text-white"
           onClick={navigateToProfile}
         >
-          <User className="h-4 w-4 mr-2" />
+          <User className="h-4 w-4 mr-2 " />
           Profile
         </Button>
         <Button
