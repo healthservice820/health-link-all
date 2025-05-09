@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, Menu, X, User, LogOut } from "lucide-react";
+import { Heart, Menu, X, User, LogOut, Ambulance } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -61,6 +62,11 @@ const Navbar = () => {
     closeMobileMenu();
   };
 
+  const navigateToEmergency = () => {
+    navigate("/emergency");
+    closeMobileMenu();
+  };
+
   const getUserName = () => {
     if (profile) {
       return `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
@@ -96,6 +102,15 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={navigateToEmergency}
+          >
+            <Ambulance className="h-4 w-4" />
+            Emergency
+          </Button>
         </nav>
 
         {/* Desktop Auth Buttons */}
@@ -152,58 +167,63 @@ const Navbar = () => {
           )}
 
           {/* Mobile Menu Toggle */}
-        <Button
-  variant="ghost"
-  size="icon"
-  className="md:hidden text-gray-200 z-[10000] hover:bg-gray-500"
-  onClick={toggleMobileMenu}
-  aria-label={isMobileMenuOpen ? "Close Menu" : "Open Menu"}
->
-  {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-</Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden text-gray-200 z-[10000] hover:bg-gray-500"
+            onClick={toggleMobileMenu}
+            aria-label={isMobileMenuOpen ? "Close Menu" : "Open Menu"}
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
       </div>
 
-     {/* MOBILE MENU */}
-{/* MOBILE MENU */}
-{isMobileMenuOpen && (
-  <>
-    {/* FULL SCREEN OVERLAY */}
-    <div
-      className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm"
-      onClick={closeMobileMenu}
-    ></div>
+      {/* MOBILE MENU */}
+      {isMobileMenuOpen && (
+        <>
+          {/* FULL SCREEN OVERLAY */}
+          <div
+            className="fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm"
+            onClick={closeMobileMenu}
+          ></div>
 
-    {/* SLIDING MENU PANEL - height adjusts to content */}
-   
-             {/* SLIDING MENU PANEL */}
-<div className="fixed top-16 right-0 w-3/4 max-w-xs z-[9999] bg-gray-900 text-white flex flex-col rounded-tl-lg shadow-xl overflow-hidden">
-  {/* No internal close button anymore */}
+          {/* SLIDING MENU PANEL */}
+          <div className="fixed top-16 right-0 w-3/4 max-w-xs z-[9999] bg-gray-900 text-white flex flex-col rounded-tl-lg shadow-xl overflow-hidden">
+            {/* Navigation Links */}
+            <nav className="px-4 space-y-1 border-b border-gray-800">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="block py-3 px-3 text-base font-medium text-white hover:text-healthcare-primary border-b border-gray-800"
+                  onClick={closeMobileMenu}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              
+              <Button 
+                variant="destructive" 
+                className="w-full justify-center mt-3 mb-3"
+                onClick={navigateToEmergency}
+              >
+                <Ambulance className="mr-2 h-4 w-4" />
+                Emergency
+              </Button>
 
-  {/* Navigation Links */}
-  <nav className="px-4 space-y-1 border-b border-gray-800">
-    {navLinks.map((link) => (
-      <Link
-        key={link.path}
-        to={link.path}
-        className="block py-3 px-3 text-base font-medium text-white hover:text-healthcare-primary border-b border-gray-800"
-        onClick={closeMobileMenu}
-      >
-        {link.name}
-      </Link>
-    ))}
+              {user && (
+                <Link
+                  to="/dashboard"
+                  className="block py-3 px-3 text-base font-medium text-white hover:text-healthcare-primary border-b border-gray-800"
+                  onClick={closeMobileMenu}
+                >
+                  Dashboard
+                </Link>
+              )}
+            </nav>
 
-    {user && (
-      <Link
-        to="/dashboard"
-        className="block py-3 px-3 text-base font-medium text-white hover:text-healthcare-primary border-b border-gray-800"
-        onClick={closeMobileMenu}
-      >
-        Dashboard
-      </Link>
-    )}
-  </nav>
-
+<<<<<<< HEAD
   {/* Auth Buttons / Footer */}
   <div className="p-4 space-y-3">
     {user ? (
@@ -251,6 +271,55 @@ const Navbar = () => {
 </div>
   </>
 )}
+=======
+            {/* Auth Buttons / Footer */}
+            <div className="p-4 space-y-3">
+              {user ? (
+                <>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+                    onClick={navigateToProfile}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="w-full justify-center"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center text-gray-100 border-gray-700 hover:bg-gray-800 hover:text-white"
+                    asChild
+                  >
+                    <Link to="/login" onClick={closeMobileMenu}>
+                      <User className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button
+                    className="w-full justify-center bg-healthcare-primary hover:bg-healthcare-accent"
+                    asChild
+                  >
+                    <Link to="/register" onClick={closeMobileMenu}>
+                      Sign Up
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+>>>>>>> 251e7db3ff02d12c4c92aae95fd40e11a9bd0caf
     </header>
   );
 };
