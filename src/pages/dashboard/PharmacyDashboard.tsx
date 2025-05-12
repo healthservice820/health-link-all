@@ -35,11 +35,11 @@ const PharmacyDashboard = () => {
             <h1 className="text-3xl font-bold">Pharmacy Dashboard</h1>
             <p className="text-gray-600">Welcome, {profile.first_name || "Pharmacy Manager"}!</p>
           </div>
-          <div className="mt-4 md:mt-0">
+          {/* <div className="mt-4 md:mt-0">
             <Button asChild className="bg-healthcare-primary hover:bg-healthcare-accent">
               <Link to="/pharmacy/emergency-stock">Emergency Stock</Link>
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -56,7 +56,7 @@ const PharmacyDashboard = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-green-50">
+          {/* <Card className="bg-green-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Database className="mr-2 h-5 w-5 text-green-600" />
@@ -67,7 +67,7 @@ const PharmacyDashboard = () => {
               <div className="text-3xl font-bold">524</div>
               <p className="text-sm text-gray-500">Items in stock</p>
             </CardContent>
-          </Card>
+          </Card> */}
           
           <Card className="bg-purple-50">
             <CardHeader className="pb-2">
@@ -112,7 +112,7 @@ const PharmacyDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Database className="mr-2 h-5 w-5 text-healthcare-primary" />
@@ -125,7 +125,7 @@ const PharmacyDashboard = () => {
                 <Link to="/pharmacy/inventory">Manage Inventory</Link>
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card>
             <CardHeader className="pb-2">
@@ -157,7 +157,7 @@ const PharmacyDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Users className="mr-2 h-5 w-5 text-healthcare-primary" />
@@ -170,9 +170,9 @@ const PharmacyDashboard = () => {
                 <Link to="/pharmacy/suppliers">Manage Suppliers</Link>
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Database className="mr-2 h-5 w-5 text-healthcare-primary" />
@@ -185,7 +185,7 @@ const PharmacyDashboard = () => {
                 <Link to="/pharmacy/reports">View Reports</Link>
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </Layout>
