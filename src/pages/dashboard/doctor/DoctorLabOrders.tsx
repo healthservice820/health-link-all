@@ -1,96 +1,190 @@
 
-import React from "react";
+import React, { useState } from "react";
 import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Search, User, Calendar, Check, Clock, AlertTriangle } from "lucide-react";
+import { FileText, Search, User, Calendar, Plus, X, MapPin, Database } from "lucide-react";
+import SearchInput from "@/components/shared/SearchInput";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/components/ui/use-toast";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 const DoctorLabOrdersPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("all-orders");
+  const { toast } = useToast();
+
+  const [nearbyDiagnosticCenters, setNearbyDiagnosticCenters] = useState([
+    { id: 1, name: "City Diagnostics", distance: "0.8 km", address: "234 Main St", homeCollection: true },
+    { id: 2, name: "LabCorp Center", distance: "1.5 km", address: "567 Oak Ave", homeCollection: false },
+    { id: 3, name: "MedLab Diagnostics", distance: "2.1 km", address: "890 Pine Rd", homeCollection: true },
+    { id: 4, name: "HealthTest Center", distance: "3.2 km", address: "112 Elm St", homeCollection: true },
+  ]);
+  
+  const [patientList, setPatientList] = useState([
+    { id: 1, name: "John Smith" },
+    { id: 2, name: "Emily Johnson" },
+    { id: 3, name: "Michael Brown" },
+    { id: 4, name: "Sarah Wilson" },
+  ]);
+
   // Mock data for lab orders
   const labOrders = [
     { 
       id: 1, 
       patient: "John Smith", 
-      test: "Complete Blood Count", 
       date: "2025-05-05", 
-      lab: "MediLab Diagnostics",
-      status: "Completed",
-      urgent: false
+      tests: ["Complete Blood Count", "Lipid Panel"],
+      status: "Pending",
+      diagnosticCenter: "City Diagnostics",
+      homeCollection: false
     },
     { 
       id: 2, 
       patient: "Emily Johnson", 
-      test: "Chest X-Ray", 
       date: "2025-05-04", 
-      lab: "RadiologyPlus",
-      status: "In Progress",
-      urgent: true
+      tests: ["Thyroid Function Test", "Vitamin D Test"],
+      status: "Completed",
+      diagnosticCenter: "LabCorp Center",
+      homeCollection: false
     },
     { 
       id: 3, 
       patient: "Michael Brown", 
-      test: "HbA1c", 
       date: "2025-05-03", 
-      lab: "Diabetes Care Lab",
-      status: "Completed",
-      urgent: false
+      tests: ["Liver Function Test", "Kidney Function Test"],
+      status: "Pending",
+      diagnosticCenter: "MedLab Diagnostics",
+      homeCollection: true
     },
     { 
       id: 4, 
       patient: "Sarah Wilson", 
-      test: "Skin Biopsy", 
-      date: "2025-05-02", 
-      lab: "Dermatology Pathology",
-      status: "Pending",
-      urgent: false
-    },
-    { 
-      id: 5, 
-      patient: "Robert Davis", 
-      test: "MRI - Knee", 
       date: "2025-04-28", 
-      lab: "Advanced Imaging",
-      status: "Completed",
-      urgent: false
+      tests: ["HbA1c", "Blood Glucose Test"],
+      status: "Scheduled",
+      diagnosticCenter: "HealthTest Center",
+      homeCollection: true
     },
   ];
 
-  // Mock data for popular tests
-  const popularTests = [
-    { id: 1, name: "Complete Blood Count (CBC)", category: "Hematology" },
-    { id: 2, name: "Comprehensive Metabolic Panel", category: "Chemistry" },
-    { id: 3, name: "Lipid Panel", category: "Chemistry" },
-    { id: 4, name: "Thyroid Function Test", category: "Endocrinology" },
-    { id: 5, name: "Hemoglobin A1C", category: "Diabetes" },
-    { id: 6, name: "Urinalysis", category: "Urology" },
-    { id: 7, name: "Liver Function Test", category: "Hepatology" },
-    { id: 8, name: "Chest X-Ray", category: "Radiology" },
-    { id: 9, name: "Electrocardiogram (ECG)", category: "Cardiology" },
-  ];
+  // Mock data for new lab order
+  const [tests, setTests] = useState([
+    { name: "" }
+  ]);
+
+  const form = useForm({
+    defaultValues: {
+      patient: "",
+      date: new Date().toISOString().split('T')[0],
+      diagnosticCenter: "",
+      homeCollection: false,
+      priority: "normal",
+      notes: ""
+    }
+  });
+
+  const addTest = () => {
+    setTests([...tests, { name: "" }]);
+  };
+
+  const removeTest = (index) => {
+    const updatedTests = [...tests];
+    updatedTests.splice(index, 1);
+    setTests(updatedTests);
+  };
+
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+  };
+
+  const handleSubmitLabOrder = (data) => {
+    if (tests[0].name === "") {
+      toast({
+        title: "Missing tests",
+        description: "Please add at least one test to the lab order",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!data.diagnosticCenter) {
+      toast({
+        title: "Missing diagnostic center",
+        description: "Please select a diagnostic center for the lab order",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real implementation, this would submit the lab order to the backend
+    console.log("Lab order data:", {
+      ...data,
+      tests: tests.map(test => test.name)
+    });
+
+    toast({
+      title: "Lab order created",
+      description: `Lab order for ${data.patient} has been sent to ${data.diagnosticCenter}`,
+    });
+
+    // Reset form and tests
+    form.reset();
+    setTests([{ name: "" }]);
+    setActiveTab("all-orders");
+  };
+
+  // Filter lab orders based on search term
+  const filteredLabOrders = labOrders.filter(order => 
+    order.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.tests.some(test => test.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    order.diagnosticCenter.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <DashboardPageLayout title="Lab Orders" description="Order tests and view diagnostic results" role="doctor">
-      <Tabs defaultValue="all-orders" className="w-full">
+    <DashboardPageLayout title="Lab Orders" description="Create and manage patient lab orders" role="doctor">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="mb-6">
-          <TabsTrigger value="all-orders">All Orders</TabsTrigger>
-          <TabsTrigger value="create-order">Create New Order</TabsTrigger>
-          <TabsTrigger value="test-results">Test Results</TabsTrigger>
+          <TabsTrigger value="all-orders">All Lab Orders</TabsTrigger>
+          <TabsTrigger value="create-order">Create Lab Order</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all-orders">
           <div className="mb-6 flex flex-col md:flex-row gap-4">
             <div className="relative md:w-2/3">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input 
-                placeholder="Search orders by patient name or test type" 
-                className="pl-10"
+              <SearchInput 
+                placeholder="Search lab orders by patient name, test, or diagnostic center" 
+                value={searchTerm}
+                onChange={setSearchTerm}
               />
             </div>
-            <Button className="bg-healthcare-primary hover:bg-healthcare-accent md:w-1/3">
-              Create New Order
+            <Button 
+              className="bg-healthcare-primary hover:bg-healthcare-accent md:w-1/3"
+              onClick={() => setActiveTab("create-order")}
+            >
+              Create New Lab Order
             </Button>
           </div>
           
@@ -99,15 +193,16 @@ const DoctorLabOrdersPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Patient</TableHead>
-                  <TableHead>Test</TableHead>
-                  <TableHead>Order Date</TableHead>
-                  <TableHead>Lab</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Tests</TableHead>
+                  <TableHead>Diagnostic Center</TableHead>
+                  <TableHead>Home Collection</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {labOrders.map((order) => (
+                {filteredLabOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center">
@@ -117,53 +212,54 @@ const DoctorLabOrdersPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
-                        <FileText className="h-4 w-4 mr-2 text-healthcare-primary" />
-                        {order.test}
-                        {order.urgent && (
-                          <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
-                            <AlertTriangle className="h-3 w-3 mr-1" />
-                            Urgent
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-2 text-gray-400" />
                         {order.date}
                       </div>
                     </TableCell>
-                    <TableCell>{order.lab}</TableCell>
+                    <TableCell>
+                      <div>
+                        {order.tests.map((test, index) => (
+                          <div key={index} className="text-sm">
+                            {test}
+                          </div>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-2 text-healthcare-primary" />
+                        {order.diagnosticCenter}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {order.homeCollection ? 
+                        <span className="text-green-600">Yes</span> : 
+                        <span className="text-gray-500">No</span>
+                      }
+                    </TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         order.status === "Completed" 
                           ? "bg-green-100 text-green-800" 
-                          : order.status === "In Progress"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
+                          : order.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-blue-100 text-blue-800"
                       }`}>
-                        {order.status === "Completed" ? (
-                          <Check className="h-3 w-3 mr-1" />
-                        ) : order.status === "In Progress" ? (
-                          <Clock className="h-3 w-3 mr-1" />
-                        ) : (
-                          <Clock className="h-3 w-3 mr-1" />
-                        )}
                         {order.status}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
-                        {order.status === "Completed" ? (
-                          <Button size="sm" className="bg-healthcare-primary hover:bg-healthcare-accent">
-                            View Results
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="outline">
-                            Track Status
-                          </Button>
-                        )}
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="outline">Actions</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem>View Results</DropdownMenuItem>
+                          <DropdownMenuItem>Edit Order</DropdownMenuItem>
+                          <DropdownMenuItem>Cancel Order</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -175,126 +271,212 @@ const DoctorLabOrdersPage = () => {
         <TabsContent value="create-order">
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-6">Create Lab Order</h3>
+              <h3 className="text-lg font-medium mb-6 flex items-center">
+                <Database className="h-5 w-5 mr-2 text-healthcare-primary" />
+                New Lab Order
+              </h3>
               
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="patient" className="text-sm font-medium">
-                      Patient
-                    </label>
-                    <Input id="patient" placeholder="Search and select patient" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="date" className="text-sm font-medium">
-                      Order Date
-                    </label>
-                    <Input id="date" type="date" defaultValue="2025-05-07" />
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <label className="text-sm font-medium">
-                    Select Tests
-                  </label>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {popularTests.map((test) => (
-                      <div key={test.id} className="flex items-center space-x-2 border rounded-md p-3 hover:border-healthcare-primary hover:bg-gray-50 cursor-pointer transition-all">
-                        <input
-                          type="checkbox"
-                          id={`test-${test.id}`}
-                          className="h-4 w-4 rounded border-gray-300 text-healthcare-primary focus:ring-healthcare-primary"
-                        />
-                        <label htmlFor={`test-${test.id}`} className="flex-1 cursor-pointer">
-                          <div className="text-sm font-medium">{test.name}</div>
-                          <div className="text-xs text-gray-500">{test.category}</div>
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <Button type="button" variant="outline" className="mt-2">
-                    Add Custom Test
-                  </Button>
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="lab" className="text-sm font-medium">
-                    Laboratory
-                  </label>
-                  <Input id="lab" placeholder="Select preferred laboratory" />
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="urgent"
-                    className="h-4 w-4 rounded border-gray-300 text-healthcare-primary focus:ring-healthcare-primary"
-                  />
-                  <label htmlFor="urgent" className="text-sm font-medium">
-                    Mark as Urgent
-                  </label>
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="notes" className="text-sm font-medium">
-                    Clinical Notes (Optional)
-                  </label>
-                  <Input id="notes" placeholder="Add any relevant clinical information" />
-                </div>
-                
-                <div className="pt-4 flex justify-end gap-3">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                  <Button type="submit" className="bg-healthcare-primary hover:bg-healthcare-accent">
-                    Submit Order
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="test-results">
-          <div className="mb-6">
-            <Input placeholder="Search test results" />
-          </div>
-          
-          <div className="space-y-6">
-            {labOrders
-              .filter(order => order.status === "Completed")
-              .map(result => (
-                <Card key={result.id}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h4 className="font-medium">
-                          {result.test} - {result.patient}
-                        </h4>
-                        <p className="text-sm text-gray-600">{result.lab} • {result.date}</p>
-                      </div>
-                      <Button size="sm" variant="outline">Download PDF</Button>
-                    </div>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSubmitLabOrder)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="patient"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Patient</FormLabel>
+                          <Select onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select patient" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {patientList.map(patient => (
+                                <SelectItem key={patient.id} value={patient.name}>
+                                  {patient.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
                     
-                    <div className="p-4 bg-gray-50 rounded-md">
-                      <p className="text-sm text-gray-600 mb-2">Test results would be displayed here...</p>
-                      <Button className="bg-healthcare-primary hover:bg-healthcare-accent">
-                        View Complete Results
+                    <FormField
+                      control={form.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-medium">
+                        Tests
+                      </label>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={addTest}
+                        className="flex items-center"
+                      >
+                        <Plus className="h-4 w-4 mr-1" /> Add Test
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            
-            {labOrders.filter(order => order.status === "Completed").length === 0 && (
-              <div className="text-center py-12 border rounded-md">
-                <p className="text-gray-500">No completed test results available</p>
-              </div>
-            )}
-          </div>
+                    
+                    <div className="space-y-4">
+                      {tests.map((test, index) => (
+                        <div key={index} className="border rounded-md p-4 relative">
+                          {index > 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeTest(index)}
+                              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 p-0 h-auto"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                          
+                          <div className="space-y-1">
+                            <label className="text-xs font-medium text-gray-500">
+                              Test Name
+                            </label>
+                            <Input 
+                              placeholder="e.g., Complete Blood Count (CBC)" 
+                              value={test.name}
+                              onChange={(e) => {
+                                const newTests = [...tests];
+                                newTests[index].name = e.target.value;
+                                setTests(newTests);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="diagnosticCenter"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Diagnostic Center</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            // Find selected center to check if it offers home collection
+                            const selectedCenter = nearbyDiagnosticCenters.find(center => center.name === value);
+                            if (selectedCenter && selectedCenter.homeCollection) {
+                              // Make home collection available
+                              form.setValue("homeCollection", false);
+                            }
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select diagnostic center" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {nearbyDiagnosticCenters.map(center => (
+                              <SelectItem key={center.id} value={center.name}>
+                                {center.name} - {center.distance} {center.homeCollection && "- Home Collection Available"}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="homeCollection"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            checked={field.value}
+                            onChange={field.onChange}
+                            className="h-4 w-4 rounded border-gray-300 text-healthcare-primary focus:ring-healthcare-accent"
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-medium">
+                          Request Home Collection (if available)
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Priority</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                            <SelectItem value="normal">Normal</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Clinical Notes</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Any relevant clinical information or special instructions" 
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="pt-4 flex justify-end gap-3">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => {
+                        form.reset();
+                        setTests([{ name: "" }]);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="bg-healthcare-primary hover:bg-healthcare-accent">
+                      Create Lab Order
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </DashboardPageLayout>
