@@ -1,513 +1,379 @@
 
 import React, { useState } from "react";
 import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { FileText, Search, User, Upload, Download, Calendar, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Search, Filter, Download, Eye, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Sample test results data
+const testResults = [
+  {
+    id: "TR-5678",
+    patientName: "John Smith",
+    testType: "Complete Blood Count",
+    dateCollected: "2023-05-10",
+    dateCompleted: "2023-05-11",
+    status: "Completed",
+    doctor: "Dr. James Wilson",
+    components: [
+      { name: "WBC", value: "7.5 x 10^9/L", range: "4.0-11.0 x 10^9/L", status: "normal" },
+      { name: "RBC", value: "5.2 x 10^12/L", range: "4.5-5.9 x 10^12/L", status: "normal" },
+      { name: "Hemoglobin", value: "14.2 g/dL", range: "13.5-17.5 g/dL", status: "normal" },
+      { name: "Hematocrit", value: "42%", range: "41-53%", status: "normal" },
+      { name: "Platelets", value: "245 x 10^9/L", range: "150-450 x 10^9/L", status: "normal" },
+    ]
+  },
+  {
+    id: "TR-5679",
+    patientName: "Sarah Johnson",
+    testType: "Liver Function Test",
+    dateCollected: "2023-05-09",
+    dateCompleted: "2023-05-10",
+    status: "Critical",
+    doctor: "Dr. Emily Brown",
+    components: [
+      { name: "ALT", value: "75 U/L", range: "7-56 U/L", status: "high" },
+      { name: "AST", value: "82 U/L", range: "5-40 U/L", status: "high" },
+      { name: "ALP", value: "142 U/L", range: "44-147 U/L", status: "normal" },
+      { name: "Albumin", value: "3.9 g/dL", range: "3.4-5.4 g/dL", status: "normal" },
+      { name: "Total Bilirubin", value: "2.1 mg/dL", range: "0.1-1.2 mg/dL", status: "high" },
+    ]
+  },
+  {
+    id: "TR-5680",
+    patientName: "Michael Davis",
+    testType: "Lipid Profile",
+    dateCollected: "2023-05-10",
+    dateCompleted: "2023-05-12",
+    status: "Abnormal",
+    doctor: "Dr. Robert Thompson",
+    components: [
+      { name: "Total Cholesterol", value: "245 mg/dL", range: "<200 mg/dL", status: "high" },
+      { name: "Triglycerides", value: "180 mg/dL", range: "<150 mg/dL", status: "high" },
+      { name: "HDL", value: "38 mg/dL", range: ">40 mg/dL", status: "low" },
+      { name: "LDL", value: "165 mg/dL", range: "<100 mg/dL", status: "high" },
+    ]
+  },
+  {
+    id: "TR-5681",
+    patientName: "Elizabeth Wilson",
+    testType: "Thyroid Function Test",
+    dateCollected: "2023-05-12",
+    dateCompleted: null,
+    status: "Processing",
+    doctor: "Dr. Sarah Adams",
+    components: []
+  },
+  {
+    id: "TR-5682",
+    patientName: "Robert Brown",
+    testType: "Complete Blood Count",
+    dateCollected: "2023-05-12",
+    dateCompleted: "2023-05-13",
+    status: "Completed",
+    doctor: "Dr. James Wilson",
+    components: [
+      { name: "WBC", value: "6.2 x 10^9/L", range: "4.0-11.0 x 10^9/L", status: "normal" },
+      { name: "RBC", value: "5.0 x 10^12/L", range: "4.5-5.9 x 10^12/L", status: "normal" },
+      { name: "Hemoglobin", value: "15.1 g/dL", range: "13.5-17.5 g/dL", status: "normal" },
+      { name: "Hematocrit", value: "44%", range: "41-53%", status: "normal" },
+      { name: "Platelets", value: "210 x 10^9/L", range: "150-450 x 10^9/L", status: "normal" },
+    ]
+  },
+  {
+    id: "TR-5683",
+    patientName: "Jennifer Martinez",
+    testType: "Glucose Tolerance Test",
+    dateCollected: "2023-05-11",
+    dateCompleted: "2023-05-12",
+    status: "Abnormal",
+    doctor: "Dr. Michael Jones",
+    components: [
+      { name: "Fasting Glucose", value: "105 mg/dL", range: "70-99 mg/dL", status: "high" },
+      { name: "1-Hour Glucose", value: "190 mg/dL", range: "<180 mg/dL", status: "high" },
+      { name: "2-Hour Glucose", value: "155 mg/dL", range: "<140 mg/dL", status: "high" },
+      { name: "3-Hour Glucose", value: "115 mg/dL", range: "70-120 mg/dL", status: "normal" },
+    ]
+  },
+];
 
 const DiagnosticsResults = () => {
-  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTest, setSelectedTest] = useState<any>(null);
-  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedResult, setSelectedResult] = useState<any>(null);
+  const [isResultDialogOpen, setIsResultDialogOpen] = useState(false);
   
-  // Mock test results data
-  const testResults = [
-    {
-      id: "TR-001",
-      patientName: "John Smith",
-      patientId: "P-1234",
-      testType: "Complete Blood Count",
-      sampleDate: "2025-05-12",
-      resultStatus: "Pending",
-      requestedBy: "Dr. Robert Chen",
-      priority: "Normal",
-      referenceRange: {
-        "WBC": "4,500 to 11,000/μL",
-        "RBC": "4.5 to 5.9 million/μL (men); 4.1 to 5.1 million/μL (women)",
-        "Hemoglobin": "14 to 17.5 g/dL (men); 12.3 to 15.3 g/dL (women)",
-        "Hematocrit": "41.5% to 50.4% (men); 35.9% to 44.6% (women)",
-        "Platelets": "150,000 to 450,000/μL"
-      }
-    },
-    {
-      id: "TR-002",
-      patientName: "Alice Johnson",
-      patientId: "P-2345",
-      testType: "Lipid Profile",
-      sampleDate: "2025-05-12",
-      resultStatus: "Completed",
-      requestedBy: "Dr. Sarah Williams",
-      priority: "Normal",
-      results: {
-        "Total Cholesterol": "190 mg/dL",
-        "LDL Cholesterol": "110 mg/dL",
-        "HDL Cholesterol": "50 mg/dL",
-        "Triglycerides": "150 mg/dL"
-      },
-      referenceRange: {
-        "Total Cholesterol": "<200 mg/dL",
-        "LDL Cholesterol": "<130 mg/dL",
-        "HDL Cholesterol": ">40 mg/dL (men); >50 mg/dL (women)",
-        "Triglycerides": "<150 mg/dL"
-      }
-    },
-    {
-      id: "TR-003",
-      patientName: "Robert Brown",
-      patientId: "P-3456",
-      testType: "Liver Function Test",
-      sampleDate: "2025-05-12",
-      resultStatus: "In Progress",
-      requestedBy: "Dr. James Johnson",
-      priority: "Urgent",
-      referenceRange: {
-        "ALT": "7 to 55 units/L",
-        "AST": "8 to 48 units/L",
-        "ALP": "45 to 115 units/L",
-        "GGT": "9 to 48 units/L",
-        "Total Bilirubin": "0.1 to 1.2 mg/dL"
-      }
-    },
-    {
-      id: "TR-004",
-      patientName: "Emily Davis",
-      patientId: "P-4567",
-      testType: "Blood Glucose",
-      sampleDate: "2025-05-13",
-      resultStatus: "Completed",
-      requestedBy: "Dr. Elizabeth Brown",
-      priority: "Urgent",
-      results: {
-        "Fasting Blood Sugar": "135 mg/dL"
-      },
-      referenceRange: {
-        "Fasting Blood Sugar": "70 to 100 mg/dL"
-      },
-      abnormal: true
-    },
-    {
-      id: "TR-005",
-      patientName: "Michael Wilson",
-      patientId: "P-5678",
-      testType: "Thyroid Profile",
-      sampleDate: "2025-05-13",
-      resultStatus: "Pending",
-      requestedBy: "Dr. David Miller",
-      priority: "Normal",
-      referenceRange: {
-        "TSH": "0.4 to 4.0 mIU/L",
-        "T3": "80 to 200 ng/dL",
-        "T4": "4.5 to 11.2 μg/dL"
-      }
-    }
-  ];
-
-  const pendingResults = testResults.filter(result => result.resultStatus === "Pending");
-  const completedResults = testResults.filter(result => result.resultStatus === "Completed");
-  const inProgressResults = testResults.filter(result => result.resultStatus === "In Progress");
-  
-  const filteredResults = testResults.filter(
-    result => result.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             result.testType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             result.patientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             result.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleUploadResults = () => {
-    if (selectedTest) {
-      toast({
-        title: "Results Uploaded",
-        description: `Test results for ${selectedTest.id} have been uploaded`,
-      });
-      setShowUploadDialog(false);
-    }
+  const handleViewResult = (result: any) => {
+    setSelectedResult(result);
+    setIsResultDialogOpen(true);
   };
 
-  const handleMarkCompleted = (id: string) => {
-    toast({
-      title: "Test Completed",
-      description: `Test ${id} has been marked as completed`,
-    });
-  };
-
-  const handleSendResults = (id: string) => {
-    toast({
-      title: "Results Sent",
-      description: `Test results for ${id} have been sent to the patient and doctor`,
-    });
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-      case "Completed":
-        return <Badge className="bg-green-100 text-green-800 border-green-200">{status}</Badge>;
-      case "Pending":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">{status}</Badge>;
-      case "In Progress":
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">{status}</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-
-  const getPriorityBadge = (priority: string) => {
-    return priority === "Urgent" 
-      ? <Badge className="bg-red-100 text-red-800 border-red-200"><AlertTriangle className="h-3 w-3 mr-1" /> {priority}</Badge>
-      : <Badge className="bg-gray-100 text-gray-800 border-gray-200">{priority}</Badge>;
-  };
-
-  const ResultRow = ({ result }: { result: any }) => (
-    <TableRow key={result.id} className={result.priority === "Urgent" ? "bg-red-50" : ""}>
-      <TableCell className="font-medium">{result.id}</TableCell>
-      <TableCell>
-        <div className="flex items-center">
-          <User className="h-4 w-4 mr-2 text-gray-400" />
-          <div>
-            <div>{result.patientName}</div>
-            <div className="text-xs text-gray-500">{result.patientId}</div>
-          </div>
-        </div>
-      </TableCell>
-      <TableCell>{result.testType}</TableCell>
-      <TableCell>
-        <div className="flex items-center">
-          <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-          {result.sampleDate}
-        </div>
-      </TableCell>
-      <TableCell>{getPriorityBadge(result.priority)}</TableCell>
-      <TableCell>{getStatusBadge(result.resultStatus)}</TableCell>
-      <TableCell className="flex space-x-2">
-        <Dialog>
-          <DialogContent className="max-w-xl">
-            <DialogHeader>
-              <DialogTitle>Test Results: {result.testType}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Patient:</p>
-                  <p className="font-medium">{result.patientName} ({result.patientId})</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Test ID:</p>
-                  <p className="font-medium">{result.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Sample Date:</p>
-                  <p>{result.sampleDate}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Requested By:</p>
-                  <p>{result.requestedBy}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Status:</p>
-                  <p>{getStatusBadge(result.resultStatus)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Priority:</p>
-                  <p>{getPriorityBadge(result.priority)}</p>
-                </div>
-              </div>
-
-              {result.results && (
-                <div className="mt-4">
-                  <h3 className="font-medium mb-2">Results</h3>
-                  <div className="border rounded-md p-4 bg-gray-50">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 pr-4">Test</th>
-                          <th className="text-left py-2 pr-4">Result</th>
-                          <th className="text-left py-2">Reference Range</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(result.results).map(([test, value]) => (
-                          <tr key={test} className="border-b last:border-0">
-                            <td className="py-2 pr-4">{test}</td>
-                            <td className={`py-2 pr-4 font-medium ${
-                              result.abnormal ? "text-red-600" : ""
-                            }`}>{value}</td>
-                            <td className="py-2">{result.referenceRange[test]}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {!result.results && result.referenceRange && (
-                <div className="mt-4">
-                  <h3 className="font-medium mb-2">Reference Ranges</h3>
-                  <div className="border rounded-md p-4 bg-gray-50">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 pr-4">Test</th>
-                          <th className="text-left py-2">Reference Range</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(result.referenceRange).map(([test, range]) => (
-                          <tr key={test} className="border-b last:border-0">
-                            <td className="py-2 pr-4">{test}</td>
-                            <td className="py-2">{range}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {result.resultStatus === "Completed" && (
-                <div className="flex justify-end">
-                  <Button variant="outline" className="mr-2">
-                    <Download className="h-4 w-4 mr-2" /> 
-                    Download PDF
-                  </Button>
-                  <Button onClick={() => handleSendResults(result.id)}>
-                    Send to Patient
-                  </Button>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {result.resultStatus === "Pending" && (
-          <Button 
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              setSelectedTest(result);
-              setShowUploadDialog(true);
-            }}
-          >
-            <Upload className="h-4 w-4 mr-2" /> Upload Results
-          </Button>
-        )}
-
-        {result.resultStatus === "In Progress" && (
-          <Button size="sm" onClick={() => handleMarkCompleted(result.id)}>
-            Mark Completed
-          </Button>
-        )}
-
-        {result.resultStatus === "Completed" && (
-          <Button size="sm" variant="outline" onClick={() => handleSendResults(result.id)}>
-            Send Results
-          </Button>
-        )}
-      </TableCell>
-    </TableRow>
-  );
+  // Filter test results based on search term and status filter
+  const filteredResults = testResults.filter(result => {
+    const matchesSearch = result.patientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         result.testType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         result.id.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || result.status.toLowerCase() === statusFilter.toLowerCase();
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
-    <DashboardPageLayout
-      title="Test Results"
-      description="Manage and deliver test results"
+    <DashboardPageLayout 
+      title="Test Results" 
+      description="View and manage completed diagnostic test results"
       role="diagnostics"
     >
-      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Upload Test Results</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {selectedTest && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Test ID:</p>
-                  <p className="font-medium">{selectedTest.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Patient:</p>
-                  <p className="font-medium">{selectedTest.patientName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Test Type:</p>
-                  <p>{selectedTest.testType}</p>
-                </div>
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row justify-between gap-4">
+            <CardTitle className="text-xl">Test Results Management</CardTitle>
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  type="search"
+                  placeholder="Search patient or test..."
+                  className="pl-8 w-full sm:w-64"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-            )}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              <div className="flex flex-col items-center">
-                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                <p className="text-sm">Drag and drop your files here or</p>
-                <Button variant="outline" className="mt-2">Browse Files</Button>
-              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="processing">Processing</SelectItem>
+                  <SelectItem value="abnormal">Abnormal</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="all">
+            <TabsList className="mb-4">
+              <TabsTrigger value="all" onClick={() => setStatusFilter("all")}>All Results</TabsTrigger>
+              <TabsTrigger value="completed" onClick={() => setStatusFilter("completed")}>Completed</TabsTrigger>
+              <TabsTrigger value="abnormal" onClick={() => setStatusFilter("abnormal")}>Abnormal</TabsTrigger>
+              <TabsTrigger value="critical" onClick={() => setStatusFilter("critical")}>Critical</TabsTrigger>
+            </TabsList>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Test ID</TableHead>
+                    <TableHead>Patient</TableHead>
+                    <TableHead>Test Type</TableHead>
+                    <TableHead>Collected</TableHead>
+                    <TableHead>Completed</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredResults.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-6">
+                        No test results found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredResults.map((result) => (
+                      <TableRow key={result.id}>
+                        <TableCell className="font-medium">{result.id}</TableCell>
+                        <TableCell>{result.patientName}</TableCell>
+                        <TableCell>{result.testType}</TableCell>
+                        <TableCell>{result.dateCollected}</TableCell>
+                        <TableCell>{result.dateCompleted || "Pending"}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            {result.status === "Completed" && (
+                              <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <CheckCircle className="w-3 h-3 mr-1" /> Completed
+                              </span>
+                            )}
+                            {result.status === "Processing" && (
+                              <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <Clock className="w-3 h-3 mr-1" /> Processing
+                              </span>
+                            )}
+                            {result.status === "Abnormal" && (
+                              <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <AlertCircle className="w-3 h-3 mr-1" /> Abnormal
+                              </span>
+                            )}
+                            {result.status === "Critical" && (
+                              <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <AlertCircle className="w-3 h-3 mr-1" /> Critical
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => handleViewResult(result)} disabled={result.status === "Processing"}>
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" disabled={result.status === "Processing"}>
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Test result detail dialog */}
+      <Dialog open={isResultDialogOpen} onOpenChange={setIsResultDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Test Result Details</DialogTitle>
+            <DialogDescription>
+              {selectedResult && (
+                <span>
+                  {selectedResult.testType} for {selectedResult.patientName}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedResult && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Test ID</p>
+                  <p className="font-medium">{selectedResult.id}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Patient</p>
+                  <p className="font-medium">{selectedResult.patientName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Collected Date</p>
+                  <p className="font-medium">{selectedResult.dateCollected}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Completed Date</p>
+                  <p className="font-medium">{selectedResult.dateCompleted || "Pending"}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <div className="mt-1">
+                    {selectedResult.status === "Completed" && (
+                      <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <CheckCircle className="w-3 h-3 mr-1" /> Completed
+                      </span>
+                    )}
+                    {selectedResult.status === "Processing" && (
+                      <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <Clock className="w-3 h-3 mr-1" /> Processing
+                      </span>
+                    )}
+                    {selectedResult.status === "Abnormal" && (
+                      <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <AlertCircle className="w-3 h-3 mr-1" /> Abnormal
+                      </span>
+                    )}
+                    {selectedResult.status === "Critical" && (
+                      <span className="flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <AlertCircle className="w-3 h-3 mr-1" /> Critical
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Referring Doctor</p>
+                  <p className="font-medium">{selectedResult.doctor}</p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h3 className="font-medium mb-2">Test Components</h3>
+                {selectedResult.components.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Component</TableHead>
+                        <TableHead>Result</TableHead>
+                        <TableHead>Reference Range</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedResult.components.map((component, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{component.name}</TableCell>
+                          <TableCell>{component.value}</TableCell>
+                          <TableCell>{component.range}</TableCell>
+                          <TableCell>
+                            {component.status === "normal" && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Normal
+                              </span>
+                            )}
+                            {component.status === "high" && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                High
+                              </span>
+                            )}
+                            {component.status === "low" && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Low
+                              </span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <p className="text-gray-500">No test components available</p>
+                )}
+              </div>
+
+              {selectedResult.status !== "Processing" && (
+                <div className="mt-4">
+                  <h3 className="font-medium mb-2">Comments</h3>
+                  <p className="text-gray-700 text-sm">
+                    {selectedResult.status === "Abnormal" && "Some values are outside the normal range. Further investigation may be required."}
+                    {selectedResult.status === "Critical" && "Critical values detected. Immediate clinical attention is recommended."}
+                    {selectedResult.status === "Completed" && "All values within normal range. No further action required."}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+          
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowUploadDialog(false)}>
-              Cancel
+            <Button variant="outline" onClick={() => setIsResultDialogOpen(false)}>
+              Close
             </Button>
-            <Button onClick={handleUploadResults}>
-              Upload
-            </Button>
+            {selectedResult && selectedResult.status !== "Processing" && (
+              <Button variant="outline" className="gap-1">
+                <Download className="h-4 w-4" /> Download Report
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <Tabs defaultValue="pending">
-        <div className="flex justify-between items-center mb-4">
-          <TabsList>
-            <TabsTrigger value="pending">Pending Results</TabsTrigger>
-            <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-            <TabsTrigger value="all">All Tests</TabsTrigger>
-          </TabsList>
-          <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4 text-gray-500" />
-            <Input 
-              placeholder="Search tests..." 
-              className="max-w-xs" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <TabsContent value="pending">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Test</TableHead>
-                  <TableHead>Sample Date</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pendingResults.length > 0 ? (
-                  pendingResults.map(result => (
-                    <ResultRow key={result.id} result={result} />
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-4">
-                      No pending results
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="in-progress">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Test</TableHead>
-                  <TableHead>Sample Date</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inProgressResults.length > 0 ? (
-                  inProgressResults.map(result => (
-                    <ResultRow key={result.id} result={result} />
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-4">
-                      No tests in progress
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="completed">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Test</TableHead>
-                  <TableHead>Sample Date</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {completedResults.length > 0 ? (
-                  completedResults.map(result => (
-                    <ResultRow key={result.id} result={result} />
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-4">
-                      No completed results
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="all">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Test</TableHead>
-                  <TableHead>Sample Date</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredResults.length > 0 ? (
-                  filteredResults.map(result => (
-                    <ResultRow key={result.id} result={result} />
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-4">
-                      No results found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
-      </Tabs>
     </DashboardPageLayout>
   );
 };

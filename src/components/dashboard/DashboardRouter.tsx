@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -28,6 +28,8 @@ const DashboardRouter = () => {
       return <Navigate to="/dashboard/ambulance" />;
     case "admin":
       return <Navigate to="/dashboard/admin" />;
+    case "finance":
+      return <Navigate to="/dashboard/finance" />;
     default:
       return <Navigate to="/" />;
   }

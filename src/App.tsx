@@ -25,6 +25,7 @@ import PharmacyDashboard from "./pages/dashboard/PharmacyDashboard";
 import DiagnosticsDashboard from "./pages/dashboard/DiagnosticsDashboard";
 import AmbulanceDashboard from "./pages/dashboard/AmbulanceDashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import FinanceControllerDashboard from "./pages/dashboard/FinanceControllerDashboard";
 
 // Patient dashboard pages
 import Appointments from "./pages/dashboard/patient/Appointments";
@@ -74,6 +75,16 @@ import AdminUsers from "./pages/dashboard/admin/AdminUsers";
 import AdminDoctors from "./pages/dashboard/admin/AdminDoctors";
 import AdminReports from "./pages/dashboard/admin/AdminReports";
 import AdminSettings from "./pages/dashboard/admin/AdminSettings";
+
+// Finance Controller dashboard pages
+import FinancialOverview from "./pages/dashboard/finance/FinancialOverview";
+import RevenueAnalytics from "./pages/dashboard/finance/RevenueAnalytics";
+import ExpenseManagement from "./pages/dashboard/finance/ExpenseManagement";
+import BudgetPlanning from "./pages/dashboard/finance/BudgetPlanning";
+import InvoiceManagement from "./pages/dashboard/finance/InvoiceManagement";
+import PayrollManagement from "./pages/dashboard/finance/PayrollManagement";
+import FinancialReports from "./pages/dashboard/finance/FinancialReports";
+import TaxManagement from "./pages/dashboard/finance/TaxManagement";
 
 const queryClient = new QueryClient();
 
@@ -151,6 +162,17 @@ const App = () => (
             <Route path="/dashboard/admin/doctors" element={<AdminDoctors />} />
             <Route path="/dashboard/admin/reports" element={<AdminReports />} />
             <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
+            
+            {/* Finance Controller dashboard routes */}
+            <Route path="/dashboard/finance" element={<FinanceControllerDashboard />} />
+            <Route path="/dashboard/finance/overview" element={<FinancialOverview />} />
+            <Route path="/dashboard/finance/revenue" element={<RevenueAnalytics />} />
+            <Route path="/dashboard/finance/expenses" element={<ExpenseManagement />} />
+            <Route path="/dashboard/finance/budget" element={<BudgetPlanning />} />
+            <Route path="/dashboard/finance/invoices" element={<InvoiceManagement />} />
+            <Route path="/dashboard/finance/payroll" element={<PayrollManagement />} />
+            <Route path="/dashboard/finance/reports" element={<FinancialReports />} />
+            <Route path="/dashboard/finance/tax" element={<TaxManagement />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
