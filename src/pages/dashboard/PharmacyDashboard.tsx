@@ -1,15 +1,86 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Activity, Database, User, Receipt } from "lucide-react";
+import { 
+  Calendar, 
+  Users, 
+  Activity, 
+  Database, 
+  User, 
+  Receipt 
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+
+interface Doctor {
+  id: string;
+  name: string;
+  specialty: string;
+  hospital: string;
+  lastPrescription: string;
+  status: "active" | "inactive";
+}
+
+const mockDoctors: Doctor[] = [
+  {
+    id: "DOC-001",
+    name: "Dr. Sarah Wilson",
+    specialty: "Cardiology",
+    hospital: "City Medical Center",
+    lastPrescription: "2 days ago",
+    status: "active"
+  },
+  {
+    id: "DOC-002",
+    name: "Dr. Michael Chen",
+    specialty: "Endocrinology",
+    hospital: "Central Hospital",
+    lastPrescription: "1 day ago",
+    status: "active"
+  },
+  {
+    id: "DOC-003",
+    name: "Dr. James Rodriguez",
+    specialty: "General Medicine",
+    hospital: "Westside Health Center",
+    lastPrescription: "5 days ago",
+    status: "active"
+  },
+  {
+    id: "DOC-004",
+    name: "Dr. Linda Thompson",
+    specialty: "Allergy & Immunology",
+    hospital: "University Medical Center",
+    lastPrescription: "1 week ago",
+    status: "inactive"
+  },
+  {
+    id: "DOC-005",
+    name: "Dr. Robert Smith",
+    specialty: "Rheumatology",
+    hospital: "Memorial Hospital",
+    lastPrescription: "3 days ago",
+    status: "active"
+  }
+];
 
 const PharmacyDashboard = () => {
   const { user, profile, isLoading } = useAuth();
+  const [showAllDoctors, setShowAllDoctors] = useState(false);
+  
+  const displayedDoctors = showAllDoctors ? mockDoctors : mockDoctors.slice(0, 3);
 
   if (isLoading) {
     return (
@@ -108,6 +179,58 @@ const PharmacyDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Connected Practitioners Section */}
+        <Card className="mb-6">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center">
+              <User className="mr-2 h-5 w-5 text-healthcare-primary" />
+              Connected Practitioners
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Doctor</TableHead>
+                    <TableHead>Specialty</TableHead>
+                    <TableHead>Hospital</TableHead>
+                    <TableHead>Last Prescription</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {displayedDoctors.map((doctor) => (
+                    <TableRow key={doctor.id}>
+                      <TableCell className="font-medium">{doctor.name}</TableCell>
+                      <TableCell>{doctor.specialty}</TableCell>
+                      <TableCell>{doctor.hospital}</TableCell>
+                      <TableCell>{doctor.lastPrescription}</TableCell>
+                      <TableCell>
+                        <Badge 
+                          className={doctor.status === "active" 
+                            ? "bg-green-500 hover:bg-green-600" 
+                            : "bg-gray-400 hover:bg-gray-500"
+                          }
+                        >
+                          {doctor.status === "active" ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            {!showAllDoctors && mockDoctors.length > 3 && (
+              <div className="mt-4 text-center">
+                <Button variant="outline" onClick={() => setShowAllDoctors(true)}>
+                  View all practitioners
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card>
