@@ -4,7 +4,7 @@ import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Activity, Database, User } from "lucide-react";
+import { Calendar, Users, Activity, Database, User, Receipt } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
@@ -186,6 +186,20 @@ const DiagnosticsDashboard = () => {
               </Button>
             </CardContent>
           </Card> */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center">
+                <Receipt className="mr-2 h-5 w-5 text-healthcare-primary" />
+                Billing
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">Manage customer bills and payments</p>
+              <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
+                <Link to="/pharmacy/billing">Manage Billing</Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </Layout>
