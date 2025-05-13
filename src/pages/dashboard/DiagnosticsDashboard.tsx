@@ -172,7 +172,7 @@ const DiagnosticsDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <Database className="mr-2 h-5 w-5 text-healthcare-primary" />
@@ -185,7 +185,7 @@ const DiagnosticsDashboard = () => {
                 <Link to="/diagnostics/reports">View Reports</Link>
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </Layout>
