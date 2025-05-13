@@ -87,7 +87,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-yellow-50">
+          {/* <Card className="bg-yellow-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <LayoutDashboard className="mr-2 h-5 w-5 text-yellow-600" />
@@ -98,7 +98,7 @@ const AdminDashboard = () => {
               <div className="text-3xl font-bold">$24,500</div>
               <p className="text-sm text-gray-500">Monthly earnings</p>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
