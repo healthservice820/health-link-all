@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -50,6 +49,7 @@ import PharmacyDeliveries from "./pages/dashboard/pharmacy/PharmacyDeliveries";
 import PharmacySuppliers from "./pages/dashboard/pharmacy/PharmacySuppliers";
 import PharmacyReports from "./pages/dashboard/pharmacy/PharmacyReports";
 import PharmacyEmergencyStock from "./pages/dashboard/pharmacy/PharmacyEmergencyStock";
+import PharmacyBilling from "./pages/dashboard/pharmacy/PharmacyBilling";
 
 // Diagnostics dashboard pages
 import DiagnosticsAppointments from "./pages/dashboard/diagnostics/DiagnosticsAppointments";
