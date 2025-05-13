@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,6 +59,7 @@ import DiagnosticsPatients from "./pages/dashboard/diagnostics/DiagnosticsPatien
 import DiagnosticsSampleCollection from "./pages/dashboard/diagnostics/DiagnosticsSampleCollection";
 import DiagnosticsPartners from "./pages/dashboard/diagnostics/DiagnosticsPartners";
 import DiagnosticsReports from "./pages/dashboard/diagnostics/DiagnosticsReports";
+import DiagnosticsUrgentTests from "./pages/dashboard/diagnostics/DiagnosticsUrgentTests";
 
 // Ambulance dashboard pages
 import AmbulanceCalls from "./pages/dashboard/ambulance/AmbulanceCalls";
@@ -132,6 +134,7 @@ const App = () => (
             <Route path="/diagnostics/sample-collection" element={<DiagnosticsSampleCollection />} />
             <Route path="/diagnostics/partners" element={<DiagnosticsPartners />} />
             <Route path="/diagnostics/reports" element={<DiagnosticsReports />} />
+            <Route path="/diagnostics/urgent-tests" element={<DiagnosticsUrgentTests />} />
             
             {/* Ambulance dashboard routes */}
             <Route path="/dashboard/ambulance" element={<AmbulanceDashboard />} />
