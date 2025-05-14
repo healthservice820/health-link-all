@@ -8,7 +8,13 @@ import {
   Users, 
   Database, 
   LayoutDashboard, 
-  User
+  User,
+  Settings,
+  CreditCard,
+  FileText,
+  Archive,
+  Building,
+  Activity
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
@@ -87,7 +93,7 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
           
-          {/* <Card className="bg-yellow-50">
+          <Card className="bg-yellow-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center">
                 <LayoutDashboard className="mr-2 h-5 w-5 text-yellow-600" />
@@ -98,7 +104,7 @@ const AdminDashboard = () => {
               <div className="text-3xl font-bold">$24,500</div>
               <p className="text-sm text-gray-500">Monthly earnings</p>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -124,14 +130,14 @@ const AdminDashboard = () => {
               <Button asChild className="w-full bg-healthcare-primary hover:bg-healthcare-accent flex justify-between items-center">
                 <Link to="/admin/pharmacies">
                   <span>Manage Pharmacies</span>
-                  <Users className="h-5 w-5" />
+                  <Building className="h-5 w-5" />
                 </Link>
               </Button>
               
               <Button asChild className="w-full bg-healthcare-primary hover:bg-healthcare-accent flex justify-between items-center">
                 <Link to="/admin/diagnostics">
                   <span>Manage Diagnostic Centers</span>
-                  <Database className="h-5 w-5" />
+                  <Activity className="h-5 w-5" />
                 </Link>
               </Button>
               
@@ -152,14 +158,14 @@ const AdminDashboard = () => {
               <Button asChild className="w-full bg-healthcare-primary hover:bg-healthcare-accent flex justify-between items-center">
                 <Link to="/admin/settings">
                   <span>System Settings</span>
-                  <LayoutDashboard className="h-5 w-5" />
+                  <Settings className="h-5 w-5" />
                 </Link>
               </Button>
               
               <Button asChild className="w-full bg-healthcare-primary hover:bg-healthcare-accent flex justify-between items-center">
                 <Link to="/admin/payments">
                   <span>Payment Configuration</span>
-                  <Database className="h-5 w-5" />
+                  <CreditCard className="h-5 w-5" />
                 </Link>
               </Button>
               
@@ -173,14 +179,14 @@ const AdminDashboard = () => {
               <Button asChild className="w-full bg-healthcare-primary hover:bg-healthcare-accent flex justify-between items-center">
                 <Link to="/admin/logs">
                   <span>System Logs</span>
-                  <Database className="h-5 w-5" />
+                  <FileText className="h-5 w-5" />
                 </Link>
               </Button>
               
               <Button asChild className="w-full bg-healthcare-primary hover:bg-healthcare-accent flex justify-between items-center">
                 <Link to="/admin/backup">
                   <span>Backup & Recovery</span>
-                  <Database className="h-5 w-5" />
+                  <Archive className="h-5 w-5" />
                 </Link>
               </Button>
             </CardContent>

@@ -73,8 +73,14 @@ import AmbulanceMaintenance from "./pages/dashboard/ambulance/AmbulanceMaintenan
 // Admin dashboard pages
 import AdminUsers from "./pages/dashboard/admin/AdminUsers";
 import AdminDoctors from "./pages/dashboard/admin/AdminDoctors";
+import AdminPharmacies from "./pages/dashboard/admin/AdminPharmacies";
+import AdminDiagnostics from "./pages/dashboard/admin/AdminDiagnostics";
+import AdminAmbulances from "./pages/dashboard/admin/AdminAmbulances";
 import AdminReports from "./pages/dashboard/admin/AdminReports";
 import AdminSettings from "./pages/dashboard/admin/AdminSettings";
+import AdminPayments from "./pages/dashboard/admin/AdminPayments";
+import AdminLogs from "./pages/dashboard/admin/AdminLogs";
+import AdminBackup from "./pages/dashboard/admin/AdminBackup";
 
 // Finance Controller dashboard pages
 import FinancialOverview from "./pages/dashboard/finance/FinancialOverview";
@@ -158,10 +164,16 @@ const App = () => (
             
             {/* Admin dashboard routes */}
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
-            <Route path="/dashboard/admin/users" element={<AdminUsers />} />
-            <Route path="/dashboard/admin/doctors" element={<AdminDoctors />} />
-            <Route path="/dashboard/admin/reports" element={<AdminReports />} />
-            <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/doctors" element={<AdminDoctors />} />
+            <Route path="/admin/pharmacies" element={<AdminPharmacies />} />
+            <Route path="/admin/diagnostics" element={<AdminDiagnostics />} />
+            <Route path="/admin/ambulances" element={<AdminAmbulances />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/payments" element={<AdminPayments />} />
+            <Route path="/admin/logs" element={<AdminLogs />} />
+            <Route path="/admin/backup" element={<AdminBackup />} />
             
             {/* Finance Controller dashboard routes */}
             <Route path="/dashboard/finance" element={<FinanceControllerDashboard />} />
