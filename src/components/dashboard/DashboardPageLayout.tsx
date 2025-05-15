@@ -9,7 +9,7 @@ interface DashboardPageLayoutProps {
   children: ReactNode;
   title: string;
   description?: string;
-  role: "patient" | "doctor" | "pharmacy" | "diagnostics" | "ambulance" | "admin";
+  role: "patient" | "doctor" | "pharmacy" | "diagnostics" | "ambulance" | "admin" | "finance";
 }
 
 const DashboardPageLayout = ({

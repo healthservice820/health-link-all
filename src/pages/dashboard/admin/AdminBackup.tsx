@@ -1,8 +1,7 @@
-
 import React, { useState } from "react";
 import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Table, 
   TableBody, 
@@ -12,217 +11,148 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Download, Upload, Archive, History, Plus } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Mock data for backups
-const mockBackups = [
-  { id: 1, name: "Full System Backup", date: "2023-05-14", time: "02:00 AM", size: "1.2 GB", status: "completed", type: "automated" },
-  { id: 2, name: "Database Backup", date: "2023-05-13", time: "02:00 AM", size: "456 MB", status: "completed", type: "automated" },
-  { id: 3, name: "Pre-Update Backup", date: "2023-05-10", time: "10:15 AM", size: "1.3 GB", status: "completed", type: "manual" },
-  { id: 4, name: "Weekly Full Backup", date: "2023-05-07", time: "02:00 AM", size: "1.1 GB", status: "completed", type: "automated" },
-  { id: 5, name: "Database Backup", date: "2023-05-06", time: "02:00 AM", size: "428 MB", status: "completed", type: "automated" },
-];
-
-// Mock data for restore points
-const mockRestorePoints = [
-  { id: 1, name: "Recovery Point - May 14", date: "2023-05-14", time: "02:30 AM", status: "available" },
-  { id: 2, name: "Recovery Point - May 13", date: "2023-05-13", time: "02:30 AM", status: "available" },
-  { id: 3, name: "Recovery Point - May 10", date: "2023-05-10", time: "10:45 AM", status: "available" },
-  { id: 4, name: "Recovery Point - May 07", date: "2023-05-07", time: "02:30 AM", status: "available" },
-  { id: 5, name: "Recovery Point - May 06", date: "2023-05-06", time: "02:30 AM", status: "archived" },
-];
+import { Input } from "@/components/ui/input";
+import { Search, Download, Upload, RotateCcw, Database, Server, HardDrive } from "lucide-react";
 
 const AdminBackup = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("backups");
-  
-  // Filter backups based on search
-  const filteredBackups = mockBackups.filter(backup => 
-    backup.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    backup.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    backup.type.toLowerCase().includes(searchTerm.toLowerCase())
+  const [backupStatus, setBackupStatus] = useState<"idle" | "running" | "completed" | "failed">("idle");
+  const [restoreStatus, setRestoreStatus] = useState<"idle" | "running" | "completed" | "failed">("idle");
+  const [logSearchTerm, setLogSearchTerm] = useState("");
+
+  // Mock function to simulate backup
+  const runBackup = async () => {
+    setBackupStatus("running");
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate backup process
+    setBackupStatus("completed");
+  };
+
+  // Mock function to simulate restore
+  const runRestore = async () => {
+    setRestoreStatus("running");
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate restore process
+    setRestoreStatus("completed");
+  };
+
+  // Mock data for logs
+  const mockLogs = [
+    { id: 1, timestamp: "2024-01-22 14:30:00", level: "info", message: "Backup started" },
+    { id: 2, timestamp: "2024-01-22 14:30:05", level: "info", message: "Database backup completed" },
+    { id: 3, timestamp: "2024-01-22 14:30:10", level: "info", message: "Files backup started" },
+    { id: 4, timestamp: "2024-01-22 14:30:15", level: "info", message: "Files backup completed" },
+    { id: 5, timestamp: "2024-01-22 14:30:20", level: "success", message: "Backup completed successfully" },
+  ];
+
+  const filteredLogs = mockLogs.filter(log =>
+    log.message.toLowerCase().includes(logSearchTerm.toLowerCase()) ||
+    log.level.toLowerCase().includes(logSearchTerm.toLowerCase())
   );
-  
-  // Filter restore points based on search
-  const filteredRestorePoints = mockRestorePoints.filter(point => 
-    point.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    point.date.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  
+
   return (
     <DashboardPageLayout
-      title="Backup & Recovery"
-      description="Manage system backups and recovery options"
+      title="Backup & Restore"
+      description="Manage backups and restore points for the system"
       role="admin"
     >
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <Archive className="mr-2 h-5 w-5 text-blue-600" />
-                Total Backups
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">15</div>
-              <p className="text-sm text-gray-500">5.4 GB total size</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <History className="mr-2 h-5 w-5 text-green-600" />
-                Recovery Points
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">8</div>
-              <p className="text-sm text-gray-500">Available for restoration</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <Upload className="mr-2 h-5 w-5 text-purple-600" />
-                Next Backup
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-medium">Today, 02:00 AM</div>
-              <p className="text-sm text-gray-500">Automated daily backup</p>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="flex flex-col md:flex-row gap-4 justify-between mb-6">
-          <Button className="bg-healthcare-primary hover:bg-healthcare-accent">
-            <Plus className="mr-2 h-4 w-4" /> Create Backup Now
-          </Button>
-          
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline">
-              <Upload className="mr-2 h-4 w-4" /> Import Backup
-            </Button>
-            
-            <Button variant="outline">
-              <History className="mr-2 h-4 w-4" /> Configure Schedule
-            </Button>
-          </div>
-        </div>
-        
-        <Tabs defaultValue="backups" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-            <TabsTrigger value="backups">Backup History</TabsTrigger>
-            <TabsTrigger value="recovery">Recovery Points</TabsTrigger>
-          </TabsList>
-          
-          <div className="flex flex-col md:flex-row gap-4 justify-between mt-4">
-            <div className="flex flex-1 gap-2 items-center">
+      <div className="grid gap-4">
+        {/* Backup Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center"><Database className="mr-2 h-5 w-5" /> Backup</CardTitle>
+            <CardDescription>Create a backup of your database and system files.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>Regular backups ensure you can recover from data loss or system failures.</p>
+            <div className="mt-4 flex justify-between items-center">
+              <Button
+                onClick={runBackup}
+                disabled={backupStatus === "running"}
+                className="bg-healthcare-primary hover:bg-healthcare-accent"
+              >
+                {backupStatus === "idle" && <><RotateCcw className="mr-2 h-4 w-4" /> Run Backup</>}
+                {backupStatus === "running" && <>Running... <RotateCcw className="ml-2 h-4 w-4 animate-spin" /></>}
+                {backupStatus === "completed" && <>Completed <Database className="ml-2 h-4 w-4" /></>}
+                {backupStatus === "failed" && <>Failed <AlertTriangle className="ml-2 h-4 w-4" /></>}
+              </Button>
+              {backupStatus === "completed" && (
+                <Badge variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Backup
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Restore Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center"><Server className="mr-2 h-5 w-5" /> Restore</CardTitle>
+            <CardDescription>Restore your system from a previous backup.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>Choose a backup file to restore your system to a previous state.</p>
+            <div className="mt-4 flex justify-between items-center">
+              <Button
+                onClick={runRestore}
+                disabled={restoreStatus === "running"}
+                className="bg-healthcare-primary hover:bg-healthcare-accent"
+              >
+                {restoreStatus === "idle" && <><Upload className="mr-2 h-4 w-4" /> Run Restore</>}
+                {restoreStatus === "running" && <>Restoring... <RotateCcw className="ml-2 h-4 w-4 animate-spin" /></>}
+                {restoreStatus === "completed" && <>Completed <Server className="ml-2 h-4 w-4" /></>}
+                {restoreStatus === "failed" && <>Failed <AlertTriangle className="ml-2 h-4 w-4" /></>}
+              </Button>
+              <Input type="file" className="hidden" id="restore-file" />
+              <Button variant="secondary" asChild>
+                <label htmlFor="restore-file" className="cursor-pointer">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Backup
+                </label>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Logs Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center"><HardDrive className="mr-2 h-5 w-5" /> Logs</CardTitle>
+            <CardDescription>View system logs for backup and restore operations.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-1 gap-2 items-center mb-4">
               <Search className="w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder={`Search ${activeTab === 'backups' ? 'backups' : 'recovery points'}...`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search logs..."
+                value={logSearchTerm}
+                onChange={(e) => setLogSearchTerm(e.target.value)}
                 className="max-w-sm"
               />
             </div>
-          </div>
-          
-          <TabsContent value="backups" className="mt-4">
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Backup Name</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Level</TableHead>
+                    <TableHead>Message</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredBackups.length > 0 ? (
-                    filteredBackups.map((backup) => (
-                      <TableRow key={backup.id}>
-                        <TableCell className="font-medium">{backup.name}</TableCell>
-                        <TableCell>{backup.date}</TableCell>
-                        <TableCell>{backup.time}</TableCell>
-                        <TableCell>{backup.size}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={backup.type === "automated" ? "bg-blue-50 text-blue-800" : "bg-purple-50 text-purple-800"}>
-                            {backup.type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className="bg-green-100 text-green-800">
-                            {backup.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="icon">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-4">No backups found</TableCell>
+                  {filteredLogs.map(log => (
+                    <TableRow key={log.id}>
+                      <TableCell>{log.timestamp}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{log.level}</Badge>
+                      </TableCell>
+                      <TableCell>{log.message}</TableCell>
                     </TableRow>
-                  )}
+                  ))}
                 </TableBody>
               </Table>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="recovery" className="mt-4">
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Recovery Point</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRestorePoints.length > 0 ? (
-                    filteredRestorePoints.map((point) => (
-                      <TableRow key={point.id}>
-                        <TableCell className="font-medium">{point.name}</TableCell>
-                        <TableCell>{point.date}</TableCell>
-                        <TableCell>{point.time}</TableCell>
-                        <TableCell>
-                          <Badge className={point.status === "available" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
-                            {point.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm" disabled={point.status !== "available"}>
-                            Restore
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-4">No recovery points found</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-        </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </DashboardPageLayout>
   );
