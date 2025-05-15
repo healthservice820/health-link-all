@@ -29,7 +29,10 @@ const DashboardRouter = () => {
     case "admin":
       return <Navigate to="/dashboard/admin" />;
     case "finance":
+    case "financial_director":
       return <Navigate to="/dashboard/finance" />;
+    case "customer_care":
+      return <Navigate to="/dashboard/customer-care" />;
     default:
       return <Navigate to="/" />;
   }

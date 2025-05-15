@@ -26,6 +26,7 @@ import DiagnosticsDashboard from "./pages/dashboard/DiagnosticsDashboard";
 import AmbulanceDashboard from "./pages/dashboard/AmbulanceDashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import FinanceControllerDashboard from "./pages/dashboard/FinanceControllerDashboard";
+import CustomerCareDashboard from "./pages/dashboard/CustomerCareDashboard";
 
 // Patient dashboard pages
 import Appointments from "./pages/dashboard/patient/Appointments";
@@ -91,6 +92,13 @@ import InvoiceManagement from "./pages/dashboard/finance/InvoiceManagement";
 import PayrollManagement from "./pages/dashboard/finance/PayrollManagement";
 import FinancialReports from "./pages/dashboard/finance/FinancialReports";
 import TaxManagement from "./pages/dashboard/finance/TaxManagement";
+
+// Customer Care dashboard pages
+import ActiveCalls from "./pages/dashboard/customer-care/ActiveCalls";
+import PatientOnboarding from "./pages/dashboard/customer-care/PatientOnboarding";
+import ProviderSearch from "./pages/dashboard/customer-care/ProviderSearch";
+import RecentPatients from "./pages/dashboard/customer-care/RecentPatients";
+import LocationServices from "./pages/dashboard/customer-care/LocationServices";
 
 const queryClient = new QueryClient();
 
@@ -164,16 +172,16 @@ const App = () => (
             
             {/* Admin dashboard routes */}
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/doctors" element={<AdminDoctors />} />
-            <Route path="/admin/pharmacies" element={<AdminPharmacies />} />
-            <Route path="/admin/diagnostics" element={<AdminDiagnostics />} />
-            <Route path="/admin/ambulances" element={<AdminAmbulances />} />
-            <Route path="/admin/reports" element={<AdminReports />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/payments" element={<AdminPayments />} />
-            <Route path="/admin/logs" element={<AdminLogs />} />
-            <Route path="/admin/backup" element={<AdminBackup />} />
+            <Route path="/dashboard/admin/users" element={<AdminUsers />} />
+            <Route path="/dashboard/admin/doctors" element={<AdminDoctors />} />
+            <Route path="/dashboard/admin/pharmacies" element={<AdminPharmacies />} />
+            <Route path="/dashboard/admin/diagnostics" element={<AdminDiagnostics />} />
+            <Route path="/dashboard/admin/ambulances" element={<AdminAmbulances />} />
+            <Route path="/dashboard/admin/reports" element={<AdminReports />} />
+            <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
+            <Route path="/dashboard/admin/payments" element={<AdminPayments />} />
+            <Route path="/dashboard/admin/logs" element={<AdminLogs />} />
+            <Route path="/dashboard/admin/backup" element={<AdminBackup />} />
             
             {/* Finance Controller dashboard routes */}
             <Route path="/dashboard/finance" element={<FinanceControllerDashboard />} />
@@ -185,6 +193,14 @@ const App = () => (
             <Route path="/dashboard/finance/payroll" element={<PayrollManagement />} />
             <Route path="/dashboard/finance/reports" element={<FinancialReports />} />
             <Route path="/dashboard/finance/tax" element={<TaxManagement />} />
+            
+            {/* Customer Care dashboard routes */}
+            <Route path="/dashboard/customer-care" element={<CustomerCareDashboard />} />
+            <Route path="/dashboard/customer-care/active-calls" element={<ActiveCalls />} />
+            <Route path="/dashboard/customer-care/patient-onboarding" element={<PatientOnboarding />} />
+            <Route path="/dashboard/customer-care/provider-search" element={<ProviderSearch />} />
+            <Route path="/dashboard/customer-care/recent-patients" element={<RecentPatients />} />
+            <Route path="/dashboard/customer-care/location-services" element={<LocationServices />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
