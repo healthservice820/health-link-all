@@ -144,7 +144,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               navigate("/dashboard/patient");
               break;
             case "financial_controller":
-            case "finance":
               navigate("/dashboard/finance");
               break;
             case "doctor":
