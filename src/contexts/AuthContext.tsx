@@ -142,6 +142,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             case "patient":
               navigate("/dashboard/patient");
               break;
+            case "financial_controller":
+              navigate("/dashboard/finance");
+              break;
             case "doctor":
               navigate("/dashboard/doctor");
               break;
@@ -156,10 +159,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               break;
             case "admin":
               navigate("/dashboard/admin");
-              break;
-            case "finance":
-            case "financial_director":
-              navigate("/dashboard/finance");
               break;
             case "customer_care":
               navigate("/dashboard/customer-care");
