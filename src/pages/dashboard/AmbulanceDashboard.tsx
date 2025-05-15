@@ -40,7 +40,7 @@ const AmbulanceDashboard = () => {
               Emergency Mode
             </Button>
             <Button asChild className="bg-healthcare-primary hover:bg-healthcare-accent">
-              <Link to="/ambulance/active-calls">Active Calls</Link>
+              <Link to="/dashboard/ambulance/calls">Active Calls</Link>
             </Button>
           </div>
         </div>
@@ -110,7 +110,7 @@ const AmbulanceDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">View and respond to emergency service requests</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/ambulance/calls">Manage Calls</Link>
+                <Link to="/dashboard/ambulance/calls">Manage Calls</Link>
               </Button>
             </CardContent>
           </Card>
@@ -125,7 +125,7 @@ const AmbulanceDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">Manage ambulance fleet and driver assignments</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/ambulance/fleet">Manage Fleet</Link>
+                <Link to="/dashboard/ambulance/fleet">Manage Fleet</Link>
               </Button>
             </CardContent>
           </Card>
@@ -140,7 +140,7 @@ const AmbulanceDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">View completed emergency service records</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/ambulance/history">View History</Link>
+                <Link to="/dashboard/ambulance/history">View History</Link>
               </Button>
             </CardContent>
           </Card>
@@ -155,7 +155,7 @@ const AmbulanceDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">Manage paramedics and driver schedules</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/ambulance/staff">Manage Staff</Link>
+                <Link to="/dashboard/ambulance/staff">Manage Staff</Link>
               </Button>
             </CardContent>
           </Card>
@@ -170,7 +170,7 @@ const AmbulanceDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">View and manage partner hospital network</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/ambulance/hospitals">Manage Network</Link>
+                <Link to="/dashboard/ambulance/hospitals">Manage Network</Link>
               </Button>
             </CardContent>
           </Card>
@@ -185,7 +185,7 @@ const AmbulanceDashboard = () => {
             <CardContent>
               <p className="text-sm text-gray-500">Schedule and track vehicle maintenance</p>
               <Button asChild className="mt-4 w-full bg-healthcare-primary hover:bg-healthcare-accent">
-                <Link to="/ambulance/maintenance">Manage Maintenance</Link>
+                <Link to="/dashboard/ambulance/maintenance">Manage Maintenance</Link>
               </Button>
             </CardContent>
           </Card>

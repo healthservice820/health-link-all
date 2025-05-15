@@ -134,24 +134,24 @@ const App = () => (
             
             {/* Pharmacy dashboard routes */}
             <Route path="/dashboard/pharmacy" element={<PharmacyDashboard />} />
-            <Route path="/pharmacy/prescriptions" element={<PharmacyPrescriptions />} />
-            <Route path="/pharmacy/inventory" element={<PharmacyInventory />} />
-            <Route path="/pharmacy/customers" element={<PharmacyCustomers />} />
-            <Route path="/pharmacy/deliveries" element={<PharmacyDeliveries />} />
-            <Route path="/pharmacy/billing" element={<PharmacyBilling />} />
-            <Route path="/pharmacy/suppliers" element={<PharmacySuppliers />} />
-            <Route path="/pharmacy/reports" element={<PharmacyReports />} />
-            <Route path="/pharmacy/emergency-stock" element={<PharmacyEmergencyStock />} />
+            <Route path="/dashboard/pharmacy/prescriptions" element={<PharmacyPrescriptions />} />
+            <Route path="/dashboard/pharmacy/inventory" element={<PharmacyInventory />} />
+            <Route path="/dashboard/pharmacy/customers" element={<PharmacyCustomers />} />
+            <Route path="/dashboard/pharmacy/deliveries" element={<PharmacyDeliveries />} />
+            <Route path="/dashboard/pharmacy/billing" element={<PharmacyBilling />} />
+            <Route path="/dashboard/pharmacy/suppliers" element={<PharmacySuppliers />} />
+            <Route path="/dashboard/pharmacy/reports" element={<PharmacyReports />} />
+            <Route path="/dashboard/pharmacy/emergency-stock" element={<PharmacyEmergencyStock />} />
             
             {/* Diagnostics dashboard routes */}
             <Route path="/dashboard/diagnostics" element={<DiagnosticsDashboard />} />
-            <Route path="/diagnostics/appointments" element={<DiagnosticsAppointments />} />
-            <Route path="/diagnostics/results" element={<DiagnosticsResults />} />
-            <Route path="/diagnostics/patients" element={<DiagnosticsPatients />} />
-            <Route path="/diagnostics/sample-collection" element={<DiagnosticsSampleCollection />} />
-            <Route path="/diagnostics/partners" element={<DiagnosticsPartners />} />
-            <Route path="/diagnostics/reports" element={<DiagnosticsReports />} />
-            <Route path="/diagnostics/urgent-tests" element={<DiagnosticsUrgentTests />} />
+            <Route path="/dashboard/diagnostics/appointments" element={<DiagnosticsAppointments />} />
+            <Route path="/dashboard/diagnostics/results" element={<DiagnosticsResults />} />
+            <Route path="/dashboard/diagnostics/patients" element={<DiagnosticsPatients />} />
+            <Route path="/dashboard/diagnostics/sample-collection" element={<DiagnosticsSampleCollection />} />
+            <Route path="/dashboard/diagnostics/partners" element={<DiagnosticsPartners />} />
+            <Route path="/dashboard/diagnostics/reports" element={<DiagnosticsReports />} />
+            <Route path="/dashboard/diagnostics/urgent-tests" element={<DiagnosticsUrgentTests />} />
             
             {/* Ambulance dashboard routes */}
             <Route path="/dashboard/ambulance" element={<AmbulanceDashboard />} />

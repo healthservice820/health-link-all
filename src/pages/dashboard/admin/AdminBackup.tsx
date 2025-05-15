@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, Download, Upload, RotateCcw, Database, Server, HardDrive } from "lucide-react";
+import { Search, Download, Upload, RotateCcw, Database, Server, HardDrive, AlertTriangle } from "lucide-react";
 
 const AdminBackup = () => {
   const [backupStatus, setBackupStatus] = useState<"idle" | "running" | "completed" | "failed">("idle");
