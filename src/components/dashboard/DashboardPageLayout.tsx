@@ -32,7 +32,18 @@ const DashboardPageLayout = ({
     );
   }
 
-  if (!user || !profile || profile.role !== role) {
+  // Special handling for financial controller roles
+  if (!user || !profile) {
+    return <Navigate to="/login" />;
+  }
+  
+  // Check if the user has the correct role
+  // For finance role, accept both "financial_controller" and "finance"
+  const hasCorrectRole = 
+    (role === "finance" && (profile.role === "financial_controller" || profile.role === "finance")) ||
+    (role !== "finance" && profile.role === role);
+
+  if (!hasCorrectRole) {
     return <Navigate to="/login" />;
   }
 
