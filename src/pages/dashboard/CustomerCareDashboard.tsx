@@ -56,7 +56,7 @@ const CustomerCareDashboard = () => {
   return (
     <DashboardPageLayout 
       title="Customer Care Dashboard" 
-      description={`Welcome ${profile?.first_name || ''} to the Customer Support Center`}
+      description={`Welcome back, ${profile?.first_name || 'Agent'}`}
       role="customer_care"
     >
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

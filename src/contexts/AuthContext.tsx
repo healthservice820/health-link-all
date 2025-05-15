@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
@@ -158,15 +157,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             case "admin":
               navigate("/dashboard/admin");
               break;
-            case "financial_controller":
+            case "finance":
+            case "financial_director":
               navigate("/dashboard/finance");
               break;
             case "customer_care":
               navigate("/dashboard/customer-care");
               break;
-            // case "financial_director":
-            //   navigate("/dashboard/finance");
-            //   break;
             default:
               navigate("/dashboard");
           }

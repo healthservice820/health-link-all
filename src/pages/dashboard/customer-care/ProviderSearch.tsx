@@ -71,8 +71,8 @@ const ProviderSearch = () => {
 
   return (
     <DashboardPageLayout
-      title="Healthcare Provider Search"
-      description="Find nearby doctors, pharmacies and diagnostic centers for patients"
+      title="Provider Search"
+      description="Find healthcare providers for patients"
       role="customer_care"
     >
       <div className="space-y-6">

@@ -120,7 +120,7 @@ const RecentPatients = () => {
   return (
     <DashboardPageLayout
       title="Recent Patients"
-      description="View and manage recently assisted patients"
+      description="View and manage recently helped patients"
       role="customer_care"
     >
       <Card className="mb-6">

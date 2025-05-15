@@ -85,7 +85,7 @@ const PatientOnboarding = () => {
   return (
     <DashboardPageLayout
       title="Patient Onboarding"
-      description="Register new patients via phone calls"
+      description="Register new patients via phone"
       role="customer_care"
     >
       <Tabs defaultValue="new-patient" className="w-full">
