@@ -23,7 +23,7 @@ const DashboardPageLayout = ({
   if (isLoading) {
     return (
       <Layout>
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto px-4 py-4 md:py-8">
           <div className="flex justify-center items-center h-64">
             <p>Loading...</p>
           </div>
@@ -49,12 +49,12 @@ const DashboardPageLayout = ({
 
   return (
     <Layout>
-      <div className="container mx-auto py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">{title}</h1>
-          {description && <p className="text-gray-600">{description}</p>}
+      <div className="container mx-auto px-4 py-4 md:py-8">
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
+          {description && <p className="text-gray-600 text-sm md:text-base mt-1">{description}</p>}
         </div>
-        <Card className="p-6">
+        <Card className="p-3 md:p-6">
           {children}
         </Card>
       </div>

@@ -5,6 +5,9 @@ import { User, Session } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+// Define a type for user roles
+type UserRole = "patient" | "doctor" | "pharmacy" | "diagnostics" | "ambulance" | "admin" | "finance" | "financial_controller" | "customer_care";
+
 type AuthContextType = {
   user: User | null;
   session: Session | null;
@@ -138,12 +141,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
         // Redirect based on role
         if (profileData) {
+          const role = profileData.role as UserRole;
+          
           // Navigate to the appropriate dashboard based on user role
-          switch (profileData.role) {
+          switch (role) {
             case "patient":
               navigate("/dashboard/patient");
               break;
             case "financial_controller":
+            case "finance":
               navigate("/dashboard/finance");
               break;
             case "doctor":

@@ -7,7 +7,11 @@ const DashboardRouter = () => {
   const { profile, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-center text-gray-600">Loading...</p>
+      </div>
+    );
   }
 
   if (!profile) {
