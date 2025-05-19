@@ -22,7 +22,13 @@ const Hero = () => {
             <p className="text-lg text-muted-foreground max-w-lg">
               HealthLink brings patients, doctors, labs, and pharmacies together in one seamless platform, available 24/7 through your smartphone.
             </p>
-            
+            <Button 
+                className="bg-healthcare-primary hover:bg-healthcare-accent text-white px-6"
+                size="lg"
+                asChild
+              >
+                <Link to="/plans">Choose the right plan for you</Link>
+              </Button>
             <div className="flex flex-wrap gap-4">
               <Button 
                 className="bg-healthcare-primary hover:bg-healthcare-accent text-white px-6"

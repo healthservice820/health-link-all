@@ -24,7 +24,6 @@ const CTA = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Your Health Journey Starts Here
               </h2>
-              
               <p className="text-white/90 max-w-lg mb-6">
                 Sign up now to access our AI-powered symptom checker, find doctors near you, book diagnostic tests, and more.
               </p>
