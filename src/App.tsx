@@ -16,7 +16,7 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Emergency from "./pages/Emergency";
-import {PlanComparison} from "./components/home/PlanComparison"
+import Plans from "./pages/Plans"
 
 // Dashboard imports
 import DashboardRouter from "./components/dashboard/DashboardRouter";
@@ -112,7 +112,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/plans" element={<PlanComparison />} />
+            <Route path="/plans" element={<Plans />} />
             <Route path="/find-doctor" element={<FindDoctor />} />
             <Route path="/diagnostics" element={<Diagnostics />} />
             <Route path="/symptoms" element={<Symptoms />} />

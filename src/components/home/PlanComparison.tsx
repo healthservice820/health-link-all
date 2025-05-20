@@ -1,6 +1,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, CrossIcon, CrownIcon } from "lucide-react"; // Assuming you have these icons
+import Layout from "@/components/layout/Layout"
 
 interface PlanFeature {
   name: string;
@@ -63,6 +64,7 @@ export function PlanComparison() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
           Choose the right plan for you
