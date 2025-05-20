@@ -161,7 +161,7 @@ const Navbar = () => {
                 className="hidden md:flex bg-healthcare-primary hover:bg-healthcare-accent"
                 asChild
               >
-                <Link to="/register">Sign Up</Link>
+                <Link to="/plans">Sign Up</Link>
               </Button>
             </>
           )}
@@ -260,7 +260,7 @@ const Navbar = () => {
                     className="w-full justify-center bg-healthcare-primary hover:bg-healthcare-accent"
                     asChild
                   >
-                    <Link to="/register" onClick={closeMobileMenu}>
+                    <Link to="/plans" onClick={closeMobileMenu}>
                       Sign Up
                     </Link>
                   </Button>

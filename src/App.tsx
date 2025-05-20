@@ -15,6 +15,8 @@ import Symptoms from "./pages/Symptoms";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import SignUpWithPlan from "./pages/SignUpWithPlan";
+
 import Emergency from "./pages/Emergency";
 import Plans from "./pages/Plans"
 
@@ -119,6 +121,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/plansignup" element={<SignUpWithPlan />} />
             <Route path="/emergency" element={<Emergency />} />
             
             {/* Dashboard routes */}

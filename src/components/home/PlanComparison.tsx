@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button";
 import { CheckIcon, CrossIcon, CrownIcon } from "lucide-react"; // Assuming you have these icons
 import Layout from "@/components/layout/Layout"
+import { Link } from "react-router-dom";
 
 interface PlanFeature {
   name: string;
@@ -102,8 +103,10 @@ export function PlanComparison() {
             ))}
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
-              Get Started
+            <Button variant="outline" className="w-full" >
+            <Link to="/plansignup" state={{ plan: "basic" }}>
+              Get Basic
+              </Link>
             </Button>
           </CardFooter>
         </Card>
@@ -138,8 +141,10 @@ export function PlanComparison() {
             ))}
           </CardContent>
           <CardFooter>
-            <Button className="w-full">
-              Get Started
+            <Button  className="w-full">
+              <Link to="/plansignup" state={{ plan: "intermediate" }}>
+              Get Intermediate
+              </Link>
             </Button>
           </CardFooter>
         </Card>
@@ -175,8 +180,13 @@ export function PlanComparison() {
             ))}
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full bg-gradient-to-r from-primary to-purple-600 text-white">
+            <Button variant="outline" className="w-full bg-gradient-to-r from-primary to-purple-600 text-white" asChild>
+              <Link 
+    to="/plansignup" 
+    state={{ plan: "premium" }} 
+  >
               Get Premium
+              </Link>
             </Button>
           </CardFooter>
         </Card>

@@ -12,7 +12,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Heart, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 // Simulated AI responses based on common symptoms
 const aiResponses = {
   headache: {
@@ -50,12 +51,18 @@ const SymptomChecker = () => {
     recommendation: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const {user}= useAuth()
+  const navigate = useNavigate()
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user){
+      navigate("/plans")
+      return
+    }
     setLoading(true);
     
     // Simulate AI processing
+    
     setTimeout(() => {
       // Check if any keywords in the symptoms match our predefined responses
       const symptomLower = symptoms.toLowerCase();
