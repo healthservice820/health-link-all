@@ -135,7 +135,7 @@ export function PlanComparison() {
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/plansignup" state={{ plan: "basic" }}>
+              <Link to="/plansignup" state={{ plan: "basic" }} onClick={() => window.scrollTo(0, 0)}>
                 Get Started
               </Link>
             </Button>
@@ -176,7 +176,7 @@ export function PlanComparison() {
           </CardContent>
           <CardFooter>
             <Button className="w-full" asChild>
-              <Link to="/plansignup" state={{ plan: "classic" }}>
+              <Link to="/plansignup" state={{ plan: "classic" }} onClick={() => window.scrollTo(0, 0)}>
                 Choose Classic
               </Link>
             </Button>
@@ -214,7 +214,7 @@ export function PlanComparison() {
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/plansignup" state={{ plan: "premium" }}>
+              <Link to="/plansignup" state={{ plan: "premium" }} onClick={() => window.scrollTo(0, 0)}>
                 Choose Premium
               </Link>
             </Button>
@@ -256,7 +256,7 @@ export function PlanComparison() {
           </CardContent>
           <CardFooter>
             <Button className="w-full bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-700 hover:to-amber-900 text-white" asChild>
-              <Link to="/plansignup" state={{ plan: "executive" }}>
+              <Link to="/plansignup" state={{ plan: "executive" }} onClick={() => window.scrollTo(0, 0)}>
                 Choose Executive
               </Link>
             </Button>
