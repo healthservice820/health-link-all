@@ -1,32 +1,22 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
-import { UploadCloud, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import Layout from './layout/Layout';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, Navigate } from "react-router-dom";
+import { Heart, ArrowRight, ArrowLeft, UploadCloud, CheckCircle2, BriefcaseMedical, Building, Activity, Ambulance } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import Layout from "@/components/layout/Layout";
+import { toast } from "sonner";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { Progress } from "@/components/ui/progress";
+import { Textarea } from "./ui/textarea";
 
-// Define form schemas for each step
+// Define form schemas
 const basicInfoSchema = z.object({
   provider_type: z.enum(['doctor', 'pharmacy', 'diagnostic', 'ambulance']),
   organization_name: z.string().optional(),
@@ -61,12 +51,12 @@ const formSchema = basicInfoSchema
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function ProviderApplicationForm() {
-  const { toast } = useToast();
-  const [step, setStep] = useState(1);
+const ProviderApplicationForm = () => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const { user } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -89,19 +79,18 @@ export default function ProviderApplicationForm() {
   const providerType = form.watch('provider_type');
 
   const nextStep = async () => {
-    // Validate current step before proceeding
     let isValid = false;
     
-    if (step === 1) {
+    if (currentStep === 1) {
       isValid = await form.trigger([
         'provider_type',
         'contact_person',
         'email',
         'phone',
       ]);
-    } else if (step === 2) {
+    } else if (currentStep === 2) {
       isValid = await form.trigger(['address']);
-    } else if (step === 3) {
+    } else if (currentStep === 3) {
       isValid = await form.trigger(['license_number']);
       if (providerType === 'doctor') {
         isValid = isValid && await form.trigger(['specialization']);
@@ -113,12 +102,12 @@ export default function ProviderApplicationForm() {
     }
     
     if (isValid) {
-      setStep(step + 1);
+      setCurrentStep(currentStep + 1);
     }
   };
 
   const prevStep = () => {
-    setStep(step - 1);
+    setCurrentStep(currentStep - 1);
   };
 
   const uploadFile = async (file: File, path: string) => {
@@ -147,14 +136,14 @@ export default function ProviderApplicationForm() {
       
       // Upload additional documents if any
       let additionalDocPaths: string[] = [];
-if (values.additional_documents && values.additional_documents.length > 0) {
-  setUploadProgress(40);
-  additionalDocPaths = await Promise.all(
-    values.additional_documents.map((file) => 
-      uploadFile(file, `${values.email}/additional`)
-    )
-  );
-}
+      if (values.additional_documents && values.additional_documents.length > 0) {
+        setUploadProgress(40);
+        additionalDocPaths = await Promise.all(
+          values.additional_documents.map(file => 
+            uploadFile(file, `${values.email}/additional`)
+          )
+        );
+      }
       
       setUploadProgress(60);
       
@@ -184,259 +173,256 @@ if (values.additional_documents && values.additional_documents.length > 0) {
       setUploadProgress(100);
       setIsSuccess(true);
       
-      toast({
-        title: 'Application submitted!',
-        description: 'Your application has been received and is under review.',
-      });
+      toast.success('Application submitted! Your application has been received and is under review.');
       
     } catch (error) {
-      toast({
-        title: 'Error submitting application',
-        description: 'Please try again or contact support.',
-        variant: 'destructive',
-      });
+      toast.error('Error submitting application. Please try again or contact support.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (user) {
+    return <Navigate to="/" />;
+  }
+
   if (isSuccess) {
     return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md text-center">
-        <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Application Submitted!</h2>
-        <p className="text-gray-600 mb-6">
-          Thank you for applying. We'll review your application and contact you soon.
-        </p>
-        <Button onClick={() => {
-          setIsSuccess(false);
-          setStep(1);
-          form.reset();
-        }}>
-          Submit Another Application
-        </Button>
-      </div>
+      <Layout>
+        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-healthcare-light p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="space-y-1">
+              <div className="flex justify-center mb-4">
+                <Link to="/" className="flex items-center gap-2">
+                  <Heart className="h-6 w-6 text-healthcare-primary" />
+                  <span className="text-xl font-bold text-healthcare-primary">HealthLink</span>
+                </Link>
+              </div>
+              <CardTitle className="text-2xl font-bold text-center">
+                Application Submitted!
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center text-center space-y-4">
+              <CheckCircle2 className="h-12 w-12 text-green-500" />
+              <p>Thank you for applying. We'll review your application and contact you soon.</p>
+              <Button 
+                onClick={() => {
+                  setIsSuccess(false);
+                  setCurrentStep(1);
+                  form.reset();
+                }}
+                className="w-full"
+              >
+                Return to Application
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
     );
   }
 
   return (
     <Layout>
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Provider Application</h1>
-        <Progress value={(step / 4) * 100} className="h-2" />
-        <div className="flex justify-between mt-2 text-sm text-gray-500">
-          <span>Basic Info</span>
-          <span>Address</span>
-          <span>Professional Info</span>
-          <span>Documents</span>
-        </div>
-      </div>
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-healthcare-light p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <div className="flex justify-center mb-4">
+              <Link to="/" className="flex items-center gap-2">
+                <Heart className="h-6 w-6 text-healthcare-primary" />
+                <span className="text-xl font-bold text-healthcare-primary">HealthLink</span>
+              </Link>
+            </div>
+            <CardTitle className="text-2xl font-bold text-center">
+              {currentStep === 1 && "Provider Information"}
+              {currentStep === 2 && "Address Details"}
+              {currentStep === 3 && "Professional Information"}
+              {currentStep === 4 && "Document Upload"}
+            </CardTitle>
+            <CardDescription className="text-center">
+              Step {currentStep} of 4
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Step 1: Basic Information */}
+              {currentStep === 1 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Provider Type</Label>
+                    <RadioGroup 
+                      onValueChange={(value) => form.setValue('provider_type', value as any)}
+                      value={form.watch('provider_type')}
+                      className="grid grid-cols-2 gap-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="doctor" id="doctor" />
+                        <Label htmlFor="doctor" className="flex items-center gap-1">
+                          <BriefcaseMedical className="h-4 w-4" /> Doctor
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="pharmacy" id="pharmacy" />
+                        <Label htmlFor="pharmacy" className="flex items-center gap-1">
+                          <Building className="h-4 w-4" /> Pharmacy
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="diagnostic" id="diagnostic" />
+                        <Label htmlFor="diagnostic" className="flex items-center gap-1">
+                          <Activity className="h-4 w-4" /> Diagnostic
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="ambulance" id="ambulance" />
+                        <Label htmlFor="ambulance" className="flex items-center gap-1">
+                          <Ambulance className="h-4 w-4" /> Ambulance
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                    {form.formState.errors.provider_type && (
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.provider_type.message}
+                      </p>
+                    )}
+                  </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Step 1: Basic Information */}
-          {step === 1 && (
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="provider_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Provider Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your provider type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="doctor">Doctor</SelectItem>
-                        <SelectItem value="pharmacy">Pharmacy</SelectItem>
-                        <SelectItem value="diagnostic">Diagnostic Center</SelectItem>
-                        <SelectItem value="ambulance">Ambulance Service</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {providerType && providerType !== 'doctor' && (
-                <FormField
-                  control={form.control}
-                  name="organization_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
+                  {providerType && providerType !== 'doctor' && (
+                    <div className="space-y-2">
+                      <Label>
                         {providerType === 'pharmacy' ? 'Pharmacy Name' : 
                          providerType === 'diagnostic' ? 'Diagnostic Center Name' : 
                          'Ambulance Service Name'}
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder={`Enter ${providerType} name`} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <FormField
-                control={form.control}
-                name="contact_person"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Person</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Full name of the contact person" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your professional email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your contact number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Address */}
-          {step === 2 && (
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Address</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Street address, city, state, and postal code"
-                        rows={3}
-                        {...field}
+                      </Label>
+                      <Input
+                        placeholder={`Enter ${providerType} name`}
+                        {...form.register('organization_name')}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-
-          {/* Step 3: Professional Information */}
-          {step === 3 && (
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="license_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>License Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your professional license number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {providerType === 'doctor' && (
-                <FormField
-                  control={form.control}
-                  name="specialization"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Specialization</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your medical specialization" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    </div>
                   )}
-                />
+
+                  <div className="space-y-2">
+                    <Label>Contact Person</Label>
+                    <Input
+                      placeholder="Full name of the contact person"
+                      {...form.register('contact_person')}
+                    />
+                    {form.formState.errors.contact_person && (
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.contact_person.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input
+                        placeholder="Your professional email"
+                        {...form.register('email')}
+                      />
+                      {form.formState.errors.email && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.email.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Phone Number</Label>
+                      <Input
+                        placeholder="Your contact number"
+                        {...form.register('phone')}
+                      />
+                      {form.formState.errors.phone && (
+                        <p className="text-sm text-red-500">
+                          {form.formState.errors.phone.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
 
-              {providerType === 'diagnostic' && (
-                <FormField
-                  control={form.control}
-                  name="services_offered"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tests Offered (comma separated)</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="e.g., Blood test, X-ray, MRI"
-                          rows={3}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Step 2: Address */}
+              {currentStep === 2 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Full Address</Label>
+                    <Textarea
+                      placeholder="Street address, city, state, and postal code"
+                      rows={3}
+                      {...form.register('address')}
+                    />
+                    {form.formState.errors.address && (
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.address.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
               )}
 
-              {providerType === 'ambulance' && (
-                <FormField
-                  control={form.control}
-                  name="coverage_area"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Coverage Area</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Cities or regions you serve" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-          )}
+              {/* Step 3: Professional Information */}
+              {currentStep === 3 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>License Number</Label>
+                    <Input
+                      placeholder="Your professional license number"
+                      {...form.register('license_number')}
+                    />
+                    {form.formState.errors.license_number && (
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.license_number.message}
+                      </p>
+                    )}
+                  </div>
 
-          {/* Step 4: Documents */}
-          {step === 4 && (
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="license_document"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>License Document</FormLabel>
+                  {providerType === 'doctor' && (
+                    <div className="space-y-2">
+                      <Label>Specialization</Label>
+                      <Input
+                        placeholder="Your medical specialization"
+                        {...form.register('specialization')}
+                      />
+                    </div>
+                  )}
+
+                  {providerType === 'diagnostic' && (
+                    <div className="space-y-2">
+                      <Label>Tests Offered (comma separated)</Label>
+                      <Textarea
+                        placeholder="e.g., Blood test, X-ray, MRI"
+                        rows={3}
+                        {...form.register('services_offered')}
+                      />
+                    </div>
+                  )}
+
+                  {providerType === 'ambulance' && (
+                    <div className="space-y-2">
+                      <Label>Coverage Area</Label>
+                      <Input
+                        placeholder="Cities or regions you serve"
+                        {...form.register('coverage_area')}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Step 4: Documents */}
+              {currentStep === 4 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>License Document</Label>
                     <div className="flex items-center justify-center w-full">
                       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
                           <p className="text-sm text-gray-500">
-                            {field.value?.name || 'Upload your license document (PDF, max 5MB)'}
+                            {form.watch('license_document')?.name || 'Upload your license document (PDF, max 5MB)'}
                           </p>
                         </div>
                         <input
@@ -444,29 +430,27 @@ if (values.additional_documents && values.additional_documents.length > 0) {
                           className="hidden"
                           accept=".pdf,.doc,.docx"
                           onChange={(e) => 
-                            field.onChange(e.target.files ? e.target.files[0] : null)
+                            form.setValue('license_document', e.target.files ? e.target.files[0] : undefined)
                           }
                         />
                       </label>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    {form.formState.errors.license_document && (
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.license_document.message}
+                      </p>
+                    )}
+                  </div>
 
-              <FormField
-                control={form.control}
-                name="additional_documents"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Additional Documents (Optional)</FormLabel>
+                  <div className="space-y-2">
+                    <Label>Additional Documents (Optional)</Label>
                     <div className="flex items-center justify-center w-full">
                       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
                           <p className="text-sm text-gray-500">
-                            {field.value?.length 
-                              ? `${field.value.length} file(s) selected` 
+                            {form.watch('additional_documents')?.length 
+                              ? `${form.watch('additional_documents')?.length} file(s) selected` 
                               : 'Upload any additional supporting documents'}
                           </p>
                         </div>
@@ -476,35 +460,43 @@ if (values.additional_documents && values.additional_documents.length > 0) {
                           multiple
                           accept=".pdf,.doc,.docx,.jpg,.png"
                           onChange={(e) => 
-                            field.onChange(e.target.files ? Array.from(e.target.files) : [])
+                            form.setValue('additional_documents', e.target.files ? Array.from(e.target.files) : [])
                           }
                         />
                       </label>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
+                  </div>
+                </div>
+              )}
 
-          <div className="flex justify-between pt-4">
-            {step > 1 ? (
-              <Button type="button" variant="outline" onClick={prevStep}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+              {isSubmitting && uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="pt-4">
+                  <Progress value={uploadProgress} className="h-2" />
+                  <p className="text-sm text-gray-500 mt-1 text-center">
+                    Uploading documents... {Math.round(uploadProgress)}%
+                  </p>
+                </div>
+              )}
+            </form>
+          </CardContent>
+          <CardContent className="flex justify-between pt-0">
+            {currentStep > 1 ? (
+              <Button variant="outline" onClick={prevStep} disabled={isSubmitting}>
+                <ArrowLeft className="h-4 w-4 mr-2" /> Back
               </Button>
             ) : (
               <div></div>
             )}
-
-            {step < 4 ? (
-              <Button type="button" onClick={nextStep}>
-                Next
-                <ArrowRight className="h-4 w-4 ml-2" />
+            
+            {currentStep < 4 ? (
+              <Button onClick={nextStep} disabled={isSubmitting}>
+                Next <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                onClick={form.handleSubmit(onSubmit)} 
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -518,19 +510,11 @@ if (values.additional_documents && values.additional_documents.length > 0) {
                 )}
               </Button>
             )}
-          </div>
-
-          {isSubmitting && uploadProgress > 0 && uploadProgress < 100 && (
-            <div className="pt-4">
-              <Progress value={uploadProgress} className="h-2" />
-              <p className="text-sm text-gray-500 mt-1 text-center">
-                Uploading documents... {Math.round(uploadProgress)}%
-              </p>
-            </div>
-          )}
-        </form>
-      </Form>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
     </Layout>
   );
-}
+};
+
+export default ProviderApplicationForm;
