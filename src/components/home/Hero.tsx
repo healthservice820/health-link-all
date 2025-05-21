@@ -27,7 +27,7 @@ const Hero = () => {
                 size="lg"
                 asChild
               >
-                <Link to="/plans">Choose the right plan for you</Link>
+                <Link to="/plans" onClick={() => window.scrollTo(0, 0)}>Choose the right plan for you</Link>
               </Button>
             <div className="flex flex-wrap gap-4">
               <Button 
