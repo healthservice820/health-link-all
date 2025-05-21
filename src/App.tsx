@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import ProviderApplicationForm from "./components/ProviderApplicationForm";
 
 // Create placeholder pages for navigation links
 import FindDoctor from "./pages/FindDoctor";
@@ -117,6 +118,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/plans" element={<Plans />} />
+            <Route path="/apply" element={<ProviderApplicationForm />} />
             <Route path="/find-doctor" element={<FindDoctor />} />
             <Route path="/diagnostics" element={<Diagnostics />} />
             <Route path="/symptoms" element={<Symptoms />} />
