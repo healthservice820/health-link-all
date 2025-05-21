@@ -102,6 +102,7 @@ import PatientOnboarding from "./pages/dashboard/customer-care/PatientOnboarding
 import ProviderSearch from "./pages/dashboard/customer-care/ProviderSearch";
 import RecentPatients from "./pages/dashboard/customer-care/RecentPatients";
 import LocationServices from "./pages/dashboard/customer-care/LocationServices";
+import ScrollToTop from "./ScrollToTop"
 
 const queryClient = new QueryClient();
 
@@ -111,6 +112,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+      <ScrollToTop />
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />

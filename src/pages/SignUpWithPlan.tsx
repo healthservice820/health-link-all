@@ -4,25 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, Navigate, useLocation } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, ArrowRight, ArrowLeft, CreditCard, Building2, ShieldCheck, Users, Briefcase } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { usePaystackPayment } from 'react-paystack';
 
 type PaymentSource = "self" | "insurance" | "government" | "donor" | "privateOrg";
-type HealthPlan = "basic" | "intermediate" | "premium";
+type HealthPlan = "basic" | "classic" | "premium" | "executive";
 
 const SignUpWithPlan = () => {
   const location = useLocation();
   const selectedPlan = (location.state?.plan as HealthPlan) || "basic";
+  const [currentStep, setCurrentStep] = useState(1);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
   
   const [formData, setFormData] = useState({
     email: "",
@@ -30,13 +26,32 @@ const SignUpWithPlan = () => {
     fullName: "",
     phoneNumber: "",
     paymentSource: "self" as PaymentSource,
-    insuranceProvider: "",
-    governmentAgency: "",
-    donorOrganization: "",
-    privateOrganization: "",
+    organizationName: "",
+    userId: "",
     selectedPlan: selectedPlan,
     agreeToTerms: false,
+    cardDetails: {
+      email: "",
+      amount: selectedPlan === "classic" ? 150000 : selectedPlan === "premium" ? 300000 : 1000000, // in kobo
+    }
   });
+
+  const planPrices = {
+    basic: 0,
+    classic: 150000, // ₦1,500 in kobo
+    premium: 300000, // ₦3,000 in kobo
+    executive: 1000000 // ₦10,000 in kobo
+  };
+
+  const config = {
+    reference: (new Date()).getTime().toString(),
+    email: formData.cardDetails.email,
+    amount: planPrices[formData.selectedPlan],
+    publicKey:import.meta.env.VITE_PAYSTACK_TEST_KEY,
+    currency: "NGN",
+  };
+
+  const initializePayment = usePaystackPayment(config);
 
   const [isLoading, setIsLoading] = useState(false);
   const { signUp, user } = useAuth();
@@ -49,11 +64,51 @@ const SignUpWithPlan = () => {
     }));
   };
 
+  const handleCardDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      cardDetails: {
+        ...prev.cardDetails,
+        [name]: value
+      }
+    }));
+  };
+
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const onPaystackSuccess = async (reference: any) => {
+    try {
+      await handleAccountCreation();
+      toast.success("Payment successful! Account created.");
+    } catch (error: any) {
+      toast.error("Payment succeeded but account creation failed: " + error.message);
+    }
+  };
+
+  const onPaystackClose = () => {
+    setPaymentInitiated(false);
+    toast.info("Payment window closed");
+  };
+
+  const handleAccountCreation = async () => {
+    await signUp(
+      formData.email, 
+      formData.password,
+      {
+        fullName: formData.fullName,
+        phoneNumber: formData.phoneNumber,
+        paymentSource: formData.paymentSource,
+        organizationName: formData.paymentSource !== "self" ? formData.organizationName : null,
+        userId: formData.paymentSource !== "self" ? formData.userId : null,
+        healthPlan: formData.selectedPlan,
+      }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,31 +121,44 @@ const SignUpWithPlan = () => {
       return;
     }
 
-    try {
-      await signUp(
-        formData.email, 
-        formData.password,
-        {
-          fullName: formData.fullName,
-          phoneNumber: formData.phoneNumber,
-          paymentSource: formData.paymentSource,
-          insuranceProvider: formData.paymentSource === "insurance" ? formData.insuranceProvider : null,
-          governmentAgency: formData.paymentSource === "government" ? formData.governmentAgency : null,
-          donorOrganization: formData.paymentSource === "donor" ? formData.donorOrganization : null,
-          privateOrganization: formData.paymentSource === "privateOrg" ? formData.privateOrganization : null,
-          healthPlan: formData.selectedPlan,
-        }
-      );
-      toast.success("Account created successfully! Please check your email to verify your account.");
-    } catch (error: any) {
-      console.error("Signup error:", error);
-      toast.error(error.message || "Failed to create account");
-    } finally {
-      setIsLoading(false);
+    if (formData.paymentSource === "self" && formData.selectedPlan !== "basic") {
+      setPaymentInitiated(true);
+      initializePayment(onPaystackSuccess, onPaystackClose);
+    } else {
+      try {
+        await handleAccountCreation();
+        toast.success("Account created successfully!");
+      } catch (error: any) {
+        toast.error(error.message || "Failed to create account");
+      }
     }
+    setIsLoading(false);
   };
 
-  // Redirect if already logged in
+  const nextStep = () => {
+    if (currentStep === 1 && !formData.fullName) {
+      toast.error("Please enter your full name");
+      return;
+    }
+    if (currentStep === 1 && !formData.email) {
+      toast.error("Please enter your email");
+      return;
+    }
+    if (currentStep === 1 && !formData.phoneNumber) {
+      toast.error("Please enter your phone number");
+      return;
+    }
+    if (currentStep === 2 && !formData.password) {
+      toast.error("Please enter a password");
+      return;
+    }
+    setCurrentStep(prev => prev + 1);
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => prev - 1);
+  };
+
   if (user) {
     return <Navigate to="/" />;
   }
@@ -106,219 +174,261 @@ const SignUpWithPlan = () => {
                 <span className="text-xl font-bold text-healthcare-primary">HealthLink</span>
               </Link>
             </div>
-            <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">
+              {currentStep === 1 && "Personal Information"}
+              {currentStep === 2 && "Account Security"}
+              {currentStep === 3 && "Payment Method"}
+              {currentStep === 4 && "Plan Confirmation"}
+            </CardTitle>
             <CardDescription className="text-center">
-              Join HealthLink and choose your health plan
+              Step {currentStep} of 4
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input 
-                  id="fullName" 
-                  name="fullName"
-                  type="text" 
-                  placeholder="John Doe" 
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  name="email"
-                  type="email" 
-                  placeholder="name@example.com" 
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <Input 
-                  id="phoneNumber" 
-                  name="phoneNumber"
-                  type="tel" 
-                  placeholder="+1234567890" 
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength={8}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Selected Health Plan</Label>
-                <div className="flex items-center gap-2 p-2 border rounded-md">
-                  <span className="capitalize font-medium">{formData.selectedPlan}</span>
-                  <Link 
-                    to="/plans" 
-                    state={{ fromSignup: true }}
-                    className="ml-auto text-sm text-healthcare-primary hover:underline"
-                  >
-                    Change plan
-                  </Link>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Who will be paying for your plan?</Label>
-                <RadioGroup 
-                  defaultValue="self" 
-                  className="grid grid-cols-2 gap-2"
-                  onValueChange={(value) => handleSelectChange("paymentSource", value)}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="self" id="self" />
-                    <Label htmlFor="self">Myself</Label>
+              {/* Step 1: Personal Information */}
+              {currentStep === 1 && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input 
+                      id="fullName" 
+                      name="fullName"
+                      type="text" 
+                      placeholder="John Doe" 
+                      value={formData.fullName}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="insurance" id="insurance" />
-                    <Label htmlFor="insurance">Insurance</Label>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      name="email"
+                      type="email" 
+                      placeholder="name@example.com" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="government" id="government" />
-                    <Label htmlFor="government">Government</Label>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Input 
+                      id="phoneNumber" 
+                      name="phoneNumber"
+                      type="tel" 
+                      placeholder="+2348012345678" 
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="donor" id="donor" />
-                    <Label htmlFor="donor">Donor Org</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="privateOrg" id="privateOrg" />
-                    <Label htmlFor="privateOrg">Private Org</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              
-              {formData.paymentSource === "insurance" && (
-                <div className="space-y-2">
-                  <Label htmlFor="insuranceProvider">Insurance Provider</Label>
-                  <Input 
-                    id="insuranceProvider" 
-                    name="insuranceProvider"
-                    type="text" 
-                    placeholder="Provider name" 
-                    value={formData.insuranceProvider}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+                </>
               )}
-              
-              {formData.paymentSource === "government" && (
-                <div className="space-y-2">
-                  <Label htmlFor="governmentAgency">Government Agency</Label>
-                  <Select
-                    onValueChange={(value) => handleSelectChange("governmentAgency", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select agency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="nhis">National Health Insurance</SelectItem>
-                      <SelectItem value="state">State Health Scheme</SelectItem>
-                      <SelectItem value="other">Other Government Agency</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
+              {/* Step 2: Account Security */}
+              {currentStep === 2 && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input 
+                      id="password" 
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      minLength={8}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Selected Health Plan</Label>
+                    <div className="flex items-center gap-2 p-2 border rounded-md">
+                      <span className="capitalize font-medium">{formData.selectedPlan}</span>
+                      {formData.selectedPlan === "basic" && <span className="ml-auto text-sm font-bold">FREE</span>}
+                      {formData.selectedPlan === "classic" && <span className="ml-auto text-sm font-bold">₦1,500/month</span>}
+                      {formData.selectedPlan === "premium" && <span className="ml-auto text-sm font-bold">₦3,000/month</span>}
+                      {formData.selectedPlan === "executive" && <span className="ml-auto text-sm font-bold">₦10,000/month</span>}
+                    </div>
+                  </div>
+                </>
               )}
-              
-              {formData.paymentSource === "donor" && (
-                <div className="space-y-2">
-                  <Label htmlFor="donorOrganization">Donor Organization</Label>
-                  <Select
-                    onValueChange={(value) => handleSelectChange("donorOrganization", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select organization" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="who">World Health Organization</SelectItem>
-                      <SelectItem value="unicef">UNICEF</SelectItem>
-                      <SelectItem value="redcross">Red Cross</SelectItem>
-                      <SelectItem value="other">Other Organization</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              
-              {formData.paymentSource === "privateOrg" && (
-                <div className="space-y-2">
-                  <Label htmlFor="privateOrganization">Private Organization</Label>
-                  <div className="flex flex-col gap-2">
-                    <Select
-                      onValueChange={(value) => handleSelectChange("privateOrganization", value)}
+
+              {/* Step 3: Payment Method */}
+              {currentStep === 3 && (
+                <>
+                  <div className="space-y-2">
+                    <Label>Who will be paying for your plan?</Label>
+                    <RadioGroup 
+                      defaultValue="self" 
+                      className="grid grid-cols-2 gap-2"
+                      value={formData.paymentSource}
+                      onValueChange={(value) => handleSelectChange("paymentSource", value as PaymentSource)}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select organization" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="corporate">Corporate Sponsor</SelectItem>
-                        <SelectItem value="foundation">Health Foundation</SelectItem>
-                        <SelectItem value="religious">Religious Organization</SelectItem>
-                        <SelectItem value="other">Other Private Organization</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formData.privateOrganization === "other" && (
-                      <Input
-                        name="privateOrganization"
-                        placeholder="Please specify organization name"
-                        value={formData.privateOrganization}
-                        onChange={handleChange}
-                        required
-                      />
-                    )}
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="self" id="self" />
+                        <Label htmlFor="self" className="flex items-center gap-1">
+                          <CreditCard className="h-4 w-4" /> Self
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="insurance" id="insurance" />
+                        <Label htmlFor="insurance" className="flex items-center gap-1">
+                          <ShieldCheck className="h-4 w-4" /> Insurance
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="government" id="government" />
+                        <Label htmlFor="government" className="flex items-center gap-1">
+                          <Building2 className="h-4 w-4" /> Government
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="donor" id="donor" />
+                        <Label htmlFor="donor" className="flex items-center gap-1">
+                          <Users className="h-4 w-4" /> Donor
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="privateOrg" id="privateOrg" />
+                        <Label htmlFor="privateOrg" className="flex items-center gap-1">
+                          <Briefcase className="h-4 w-4" /> Private Org
+                        </Label>
+                      </div>
+                    </RadioGroup>
                   </div>
-                </div>
+
+                  {formData.paymentSource === "self" && formData.selectedPlan !== "basic" && (
+                    <div className="space-y-4 border p-4 rounded-md mt-4">
+                      <Label className="flex items-center gap-2 text-lg">
+                        <CreditCard className="h-5 w-5" /> Card Details (Paystack)
+                      </Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="cardEmail">Email for Payment Receipt</Label>
+                        <Input 
+                          id="cardEmail" 
+                          name="email"
+                          type="email" 
+                          placeholder="payment@example.com" 
+                          value={formData.cardDetails.email}
+                          onChange={handleCardDetailsChange}
+                          required
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        You'll be redirected to Paystack to complete your payment of {' '}
+                        {formData.selectedPlan === "classic" ? '₦1,500' : 
+                         formData.selectedPlan === "premium" ? '₦3,000' : '₦10,000'}
+                      </p>
+                    </div>
+                  )}
+
+                  {formData.paymentSource !== "self" && (
+                    <div className="space-y-4 border p-4 rounded-md mt-4">
+                      <Label className="flex items-center gap-2 text-lg">
+                        {formData.paymentSource === "insurance" && <ShieldCheck className="h-5 w-5" />}
+                        {formData.paymentSource === "government" && <Building2 className="h-5 w-5" />}
+                        {formData.paymentSource === "donor" && <Users className="h-5 w-5" />}
+                        {formData.paymentSource === "privateOrg" && <Briefcase className="h-5 w-5" />}
+                        Organization Verification
+                      </Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="organizationName">
+                          {formData.paymentSource === "insurance" && "Insurance Company Name"}
+                          {formData.paymentSource === "government" && "Government Agency Name"}
+                          {formData.paymentSource === "donor" && "Donor Organization Name"}
+                          {formData.paymentSource === "privateOrg" && "Private Organization Name"}
+                        </Label>
+                        <Input 
+                          id="organizationName" 
+                          name="organizationName"
+                          type="text" 
+                          placeholder={
+                            formData.paymentSource === "insurance" ? "e.g. AXA Mansard" :
+                            formData.paymentSource === "government" ? "e.g. NHIS" :
+                            formData.paymentSource === "donor" ? "e.g. UNICEF" :
+                            "e.g. Acme Corp"
+                          } 
+                          value={formData.organizationName}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="userId">
+                          {formData.paymentSource === "insurance" && "Policy Number"}
+                          {formData.paymentSource === "government" && "Beneficiary ID"}
+                          {formData.paymentSource === "donor" && "Donor ID"}
+                          {formData.paymentSource === "privateOrg" && "Employee/Member ID"}
+                        </Label>
+                        <Input 
+                          id="userId" 
+                          name="userId"
+                          type="text" 
+                          placeholder="Your identification number" 
+                          value={formData.userId}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Step 4: Confirmation */}
+              {currentStep === 4 && (
+                <>
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-lg">Review Your Information</h3>
+                    <div className="space-y-2">
+                      <p><span className="font-semibold">Plan:</span> {formData.selectedPlan.charAt(0).toUpperCase() + formData.selectedPlan.slice(1)}</p>
+                      <p><span className="font-semibold">Payment Method:</span> {formData.paymentSource === "self" ? "Self Payment" : formData.organizationName}</p>
+                      <p><span className="font-semibold">Amount:</span> {formData.selectedPlan === "basic" ? "FREE" : 
+                        formData.selectedPlan === "classic" ? "₦1,500/month" :
+                        formData.selectedPlan === "premium" ? "₦3,000/month" : "₦10,000/month"}</p>
+                    </div>
+
+                    <div className="flex items-center space-x-2 mt-4">
+                      <input
+                        type="checkbox"
+                        id="agreeToTerms"
+                        name="agreeToTerms"
+                        checked={formData.agreeToTerms}
+                        onChange={handleChange}
+                        className="h-4 w-4 rounded border-gray-300 text-healthcare-primary focus:ring-healthcare-primary"
+                      />
+                      <Label htmlFor="agreeToTerms">
+                        I agree to the <Link to="/terms" className="text-healthcare-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-healthcare-primary hover:underline">Privacy Policy</Link>
+                      </Label>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              {currentStep > 1 ? (
+                <Button variant="outline" onClick={prevStep} disabled={isLoading}>
+                  <ArrowLeft className="h-4 w-4 mr-2" /> Back
+                </Button>
+              ) : (
+                <div></div>
               )}
               
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="agreeToTerms"
-                  name="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onChange={handleChange}
-                  className="h-4 w-4 rounded border-gray-300 text-healthcare-primary focus:ring-healthcare-primary"
-                />
-                <Label htmlFor="agreeToTerms">
-                  I agree to the <Link to="/terms" className="text-healthcare-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-healthcare-primary hover:underline">Privacy Policy</Link>
-                </Label>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
-              <Button 
-                className="w-full bg-healthcare-primary hover:bg-healthcare-accent" 
-                type="submit"
-                disabled={isLoading}
-              >
-                {isLoading ? "Creating account..." : "Create Account"}
-              </Button>
-              <div className="text-center text-sm">
-                Already have an account?{" "}
-                <Link to="/login" className="text-healthcare-primary hover:underline">
-                  Sign in
-                </Link>
-              </div>
+              {currentStep < 4 ? (
+                <Button onClick={nextStep} disabled={isLoading}>
+                  Next <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button type="submit" disabled={isLoading || paymentInitiated}>
+                  {isLoading ? "Processing..." : "Complete Registration"}
+                </Button>
+              )}
             </CardFooter>
           </form>
         </Card>
