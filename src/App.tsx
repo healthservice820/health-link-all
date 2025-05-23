@@ -86,6 +86,7 @@ import AdminSettings from "./pages/dashboard/admin/AdminSettings";
 import AdminPayments from "./pages/dashboard/admin/AdminPayments";
 import AdminLogs from "./pages/dashboard/admin/AdminLogs";
 import AdminBackup from "./pages/dashboard/admin/AdminBackup";
+import ApplicationReview from "./pages/dashboard/admin/ApplicationReview";
 
 // Finance Controller dashboard pages
 import FinancialOverview from "./pages/dashboard/finance/FinancialOverview";
@@ -191,6 +192,7 @@ const App = () => (
             <Route path="/dashboard/admin/payments" element={<AdminPayments />} />
             <Route path="/dashboard/admin/logs" element={<AdminLogs />} />
             <Route path="/dashboard/admin/backup" element={<AdminBackup />} />
+             <Route path="/dashboard/admin/applications" element={<ApplicationReview />} />
             
             {/* Finance Controller dashboard routes */}
             <Route path="/dashboard/finance" element={<FinanceControllerDashboard />} />

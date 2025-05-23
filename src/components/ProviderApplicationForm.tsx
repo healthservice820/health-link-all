@@ -111,80 +111,80 @@ const ProviderApplicationForm = () => {
   };
 
   const uploadFile = async (file: File, path: string) => {
-    const { data, error } = await supabase.storage
-      .from('provider-documents')
-      .upload(`${path}/${file.name}-${Date.now()}`, file, {
-        cacheControl: '3600',
-        upsert: false,
-        contentType: file.type,
-      });
+  const { data, error } = await supabase.storage
+    .from('providers-documents')
+    .upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type,
+    });
+
+  if (error) throw error;
+  return data.path;
+};
+ //Submit form
+ const onSubmit = async (values: FormValues) => {
+  try {
+    setIsSubmitting(true);
+
+    // Upload license document
+    setUploadProgress(20);
+    const licenseDocPath = await uploadFile(
+      values.license_document,
+      `applications/${values.email}/license`
+    );
+
+    // Upload additional documents if any
+    let additionalDocPaths: string[] = [];
+    if (values.additional_documents && values.additional_documents.length > 0) {
+      setUploadProgress(40);
+      additionalDocPaths = await Promise.all(
+        values.additional_documents.map(file => 
+          uploadFile(file, `applications/${values.email}/additional`)
+        )
+      );
+    }
+
+    setUploadProgress(60);
+
+    // Submit application to database
+    const { error } = await supabase
+      .from('provider_applications')
+      .insert([{
+        provider_type: values.provider_type,
+        organization_name: values.organization_name,
+        contact_person: values.contact_person,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        license_number: values.license_number,
+        license_document_url: licenseDocPath,
+        other_documents_urls: additionalDocPaths,
+        status: 'pending',
+        ...(providerType === 'doctor' && { specialization: values.specialization }),
+        ...(providerType === 'diagnostic' && { 
+          services_offered: values.services_offered?.split(',') 
+        }),
+        ...(providerType === 'ambulance' && { coverage_area: values.coverage_area }),
+      }]);
 
     if (error) throw error;
-    return data.path;
-  };
 
-  const onSubmit = async (values: FormValues) => {
-    try {
-      setIsSubmitting(true);
-      
-      // Upload license document
-      setUploadProgress(20);
-      const licenseDocPath = await uploadFile(
-        values.license_document,
-        `${values.email}/license`
-      );
-      
-      // Upload additional documents if any
-      let additionalDocPaths: string[] = [];
-      if (values.additional_documents && values.additional_documents.length > 0) {
-        setUploadProgress(40);
-        additionalDocPaths = await Promise.all(
-          values.additional_documents.map(file => 
-            uploadFile(file, `${values.email}/additional`)
-          )
-        );
-      }
-      
-      setUploadProgress(60);
-      
-      // Submit application to database
-      const { data, error } = await supabase
-        .from('provider_applications')
-        .insert([{
-          provider_type: values.provider_type,
-          organization_name: values.organization_name,
-          contact_person: values.contact_person,
-          email: values.email,
-          phone: values.phone,
-          address: values.address,
-          license_number: values.license_number,
-          license_document_url: licenseDocPath,
-          other_documents_urls: additionalDocPaths,
-          status: 'pending',
-          ...(providerType === 'doctor' && { specialization: values.specialization }),
-          ...(providerType === 'diagnostic' && { services_offered: values.services_offered?.split(',') }),
-          ...(providerType === 'ambulance' && { coverage_area: values.coverage_area }),
-        }])
-        .select()
-        .single();
+    setUploadProgress(100);
+    setIsSuccess(true);
+    toast.success('Application submitted successfully!');
 
-      if (error) throw error;
-      
-      setUploadProgress(100);
-      setIsSuccess(true);
-      
-      toast.success('Application submitted! Your application has been received and is under review.');
-      
-    } catch (error) {
-      toast.error('Error submitting application. Please try again or contact support.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (user) {
-    return <Navigate to="/" />;
+  } catch (error) {
+    console.error("Submission error:", error);
+    toast.error('Error submitting application. Please try again.');
+  } finally {
+    setIsSubmitting(false);
   }
+};
+  
+  // if (user) {
+  //   return <Navigate to="/" />;
+  // }
 
   if (isSuccess) {
     return (
@@ -430,7 +430,7 @@ const ProviderApplicationForm = () => {
                           className="hidden"
                           accept=".pdf,.doc,.docx"
                           onChange={(e) => 
-                            form.setValue('license_document', e.target.files ? e.target.files[0] : undefined)
+                            form.setValue('license_document', e.target.files?.[0] as File)
                           }
                         />
                       </label>
@@ -460,7 +460,7 @@ const ProviderApplicationForm = () => {
                           multiple
                           accept=".pdf,.doc,.docx,.jpg,.png"
                           onChange={(e) => 
-                            form.setValue('additional_documents', e.target.files ? Array.from(e.target.files) : [])
+                            form.setValue('additional_documents', Array.from(e.target.files || []))
                           }
                         />
                       </label>

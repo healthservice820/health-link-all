@@ -247,7 +247,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <Button asChild className="w-full bg-healthcare-primary hover:bg-healthcare-accent flex justify-between items-center">
-                <Link to="/admin/applications">
+                <Link to="/dashboard/admin/applications">
                   <span>Review Applications</span>
                   <ClipboardList className="h-5 w-5" />
                 </Link>
