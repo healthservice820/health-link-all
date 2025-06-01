@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,22 @@ import { usePaystackPayment } from 'react-paystack';
 
 type PaymentSource = "self" | "insurance" | "government" | "donor" | "privateOrg";
 type HealthPlan = "basic" | "classic" | "premium" | "executive";
+
+interface PaystackResponse {
+  message: string;
+  reference: string;
+  status: string;
+  trans: string;
+  transaction: string;
+  trxref: string;
+}
+
+const planPrices = {
+  basic: 0,
+  classic: 150000, // ₦1,500 in kobo
+  premium: 300000, // ₦3,000 in kobo
+  executive: 1000000 // ₦10,000 in kobo
+};
 
 const SignUpWithPlan = () => {
   const location = useLocation();
@@ -32,24 +48,17 @@ const SignUpWithPlan = () => {
     agreeToTerms: false,
     cardDetails: {
       email: "",
-      amount: selectedPlan === "classic" ? 150000 : selectedPlan === "premium" ? 300000 : 1000000, // in kobo
+      amount: selectedPlan === "classic" ? 150000 : selectedPlan === "premium" ? 300000 : 1000000,
     }
   });
 
-  const planPrices = {
-    basic: 0,
-    classic: 150000, // ₦1,500 in kobo
-    premium: 300000, // ₦3,000 in kobo
-    executive: 1000000 // ₦10,000 in kobo
-  };
-
-  const config = {
+  const config = useMemo(() => ({
     reference: (new Date()).getTime().toString(),
     email: formData.cardDetails.email,
     amount: planPrices[formData.selectedPlan],
-    publicKey:import.meta.env.VITE_PAYSTACK_TEST_KEY,
+    publicKey: import.meta.env.VITE_PAYSTACK_KEY,
     currency: "NGN",
-  };
+  }), [formData.cardDetails.email, formData.selectedPlan]);
 
   const initializePayment = usePaystackPayment(config);
 
@@ -82,13 +91,15 @@ const SignUpWithPlan = () => {
     }));
   };
 
-  const onPaystackSuccess = async (reference: any) => {
-    try {
-      await handleAccountCreation();
-      toast.success("Payment successful! Account created.");
-    } catch (error: any) {
-      toast.error("Payment succeeded but account creation failed: " + error.message);
-    }
+  const onPaystackSuccess = (response: PaystackResponse) => {
+    handleAccountCreation()
+      .then(() => {
+        toast.success("Payment successful! Account created.");
+      })
+      .catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        toast.error("Payment succeeded but account creation failed: " + errorMessage);
+      });
   };
 
   const onPaystackClose = () => {
@@ -128,12 +139,14 @@ const SignUpWithPlan = () => {
       try {
         await handleAccountCreation();
         toast.success("Account created successfully!");
-      } catch (error: any) {
-        toast.error(error.message || "Failed to create account");
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        toast.error(errorMessage || "Failed to create account");
       }
     }
     setIsLoading(false);
   };
+
 
   const nextStep = () => {
     if (currentStep === 1 && !formData.fullName) {
