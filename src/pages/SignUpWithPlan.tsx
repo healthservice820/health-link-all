@@ -54,11 +54,11 @@ const SignUpWithPlan = () => {
 
   const config = useMemo(() => ({
     reference: (new Date()).getTime().toString(),
-    email: formData.cardDetails.email,
+    email: formData.cardDetails.email || formData.email,
     amount: planPrices[formData.selectedPlan],
-    publicKey: import.meta.env.VITE_PAYSTACK_KEY,
+    publicKey: import.meta.env.VITE_PAYSTACK_KEY || "pk_test_example",
     currency: "NGN",
-  }), [formData.cardDetails.email, formData.selectedPlan]);
+  }), [formData.cardDetails.email, formData.email, formData.selectedPlan]);
 
   const initializePayment = usePaystackPayment(config);
 
@@ -91,23 +91,36 @@ const SignUpWithPlan = () => {
     }));
   };
 
-  const onPaystackSuccess = (response: PaystackResponse) => {
-    handleAccountCreation()
-      .then(() => {
-        toast.success("Payment successful! Account created.");
-      })
-      .catch((error: unknown) => {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        toast.error("Payment succeeded but account creation failed: " + errorMessage);
-      });
+  const onPaystackSuccess = async (response: PaystackResponse) => {
+    console.log("Payment successful:", response);
+    setPaymentInitiated(false);
+    try {
+      await handleAccountCreation();
+      toast.success("Payment successful! Account created.");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Account creation error:", error);
+      toast.error("Payment succeeded but account creation failed: " + errorMessage);
+    }
   };
 
   const onPaystackClose = () => {
+    console.log("Payment window closed");
     setPaymentInitiated(false);
     toast.info("Payment window closed");
   };
 
   const handleAccountCreation = async () => {
+    console.log("Creating account with data:", {
+      email: formData.email,
+      fullName: formData.fullName,
+      phoneNumber: formData.phoneNumber,
+      paymentSource: formData.paymentSource,
+      organizationName: formData.paymentSource !== "self" ? formData.organizationName : null,
+      userId: formData.paymentSource !== "self" ? formData.userId : null,
+      healthPlan: formData.selectedPlan,
+    });
+
     await signUp(
       formData.email, 
       formData.password,
@@ -126,27 +139,44 @@ const SignUpWithPlan = () => {
     e.preventDefault();
     setIsLoading(true);
     
+    console.log("Form submitted with data:", formData);
+    
     if (!formData.agreeToTerms) {
       toast.error("You must agree to the terms and conditions");
       setIsLoading(false);
       return;
     }
 
+    // For paid plans with self payment, initiate Paystack payment
     if (formData.paymentSource === "self" && formData.selectedPlan !== "basic") {
+      console.log("Initiating Paystack payment");
       setPaymentInitiated(true);
+      
+      // Use email from card details if provided, otherwise use main email
+      const paymentEmail = formData.cardDetails.email || formData.email;
+      
+      // Update config with the correct email
+      const updatedConfig = {
+        ...config,
+        email: paymentEmail,
+      };
+      
+      console.log("Payment config:", updatedConfig);
       initializePayment(onPaystackSuccess, onPaystackClose);
     } else {
+      // For basic plan or non-self payment, create account directly
+      console.log("Creating account directly (no payment required)");
       try {
         await handleAccountCreation();
         toast.success("Account created successfully!");
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error("Account creation error:", error);
         toast.error(errorMessage || "Failed to create account");
       }
     }
     setIsLoading(false);
   };
-
 
   const nextStep = () => {
     if (currentStep === 1 && !formData.fullName) {
@@ -322,15 +352,14 @@ const SignUpWithPlan = () => {
                         <CreditCard className="h-5 w-5" /> Card Details (Paystack)
                       </Label>
                       <div className="space-y-2">
-                        <Label htmlFor="cardEmail">Email for Payment Receipt</Label>
+                        <Label htmlFor="cardEmail">Email for Payment Receipt (optional)</Label>
                         <Input 
                           id="cardEmail" 
                           name="email"
                           type="email" 
-                          placeholder="payment@example.com" 
+                          placeholder="Leave empty to use main email" 
                           value={formData.cardDetails.email}
                           onChange={handleCardDetailsChange}
-                          required
                         />
                       </div>
                       <p className="text-sm text-gray-500">
