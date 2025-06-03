@@ -16,6 +16,7 @@ import Diagnostics from "./pages/Diagnostics";
 import About from "./pages/About";
 import DashboardRouter from "./components/dashboard/DashboardRouter";
 import ProviderApplicationForm from "./components/ProviderApplicationForm";
+import SignUpWithPlan from "./pages/SignUpWithPlan";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
+            <Route path="/plansignup" element={<SignUpWithPlan />} />
             <Route path="/plans" element={<Plans />} />
             <Route path="/find-doctor" element={<FindDoctor />} />
             <Route path="/symptoms" element={<Symptoms />} />
