@@ -23,10 +23,6 @@ import Plans from "./pages/Plans"
 
 // Dashboard imports
 import DashboardRouter from "./components/dashboard/DashboardRouter";
-<<<<<<< HEAD
-import ProviderApplicationForm from "./components/ProviderApplicationForm";
-import SignUpWithPlan from "./pages/SignUpWithPlan";
-=======
 import PatientDashboard from "./pages/dashboard/PatientDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import PharmacyDashboard from "./pages/dashboard/PharmacyDashboard";
@@ -109,7 +105,6 @@ import ProviderSearch from "./pages/dashboard/customer-care/ProviderSearch";
 import RecentPatients from "./pages/dashboard/customer-care/RecentPatients";
 import LocationServices from "./pages/dashboard/customer-care/LocationServices";
 import ScrollToTop from "./ScrollToTop"
->>>>>>> 1105facdad2c40213b9fe03c811dedc6cdbda918
 
 const queryClient = new QueryClient();
 
@@ -123,11 +118,6 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-<<<<<<< HEAD
-            <Route path="/login" element={<Login />} />
-            <Route path="/plansignup" element={<SignUpWithPlan />} />
-=======
->>>>>>> 1105facdad2c40213b9fe03c811dedc6cdbda918
             <Route path="/plans" element={<Plans />} />
             <Route path="/apply" element={<ProviderApplicationForm />} />
             <Route path="/find-doctor" element={<FindDoctor />} />
