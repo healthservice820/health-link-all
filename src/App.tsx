@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,7 +21,7 @@ import Plans from "./pages/Plans"
 
 // Dashboard imports
 import DashboardRouter from "./components/dashboard/DashboardRouter";
-import {UserDashboard} from "./pages/dashboard/CustomerDashboard";
+import UserDashboard from "./pages/dashboard/CustomerDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import PharmacyDashboard from "./pages/dashboard/PharmacyDashboard";
 import DiagnosticsDashboard from "./pages/dashboard/DiagnosticsDashboard";
@@ -132,12 +131,6 @@ const App = () => (
             
             {/* Patient dashboard routes */}
             <Route path="/dashboard/patient" element={<UserDashboard />} />
-            <Route path="/dashboard/patient/appointments" element={<Appointments />} />
-            <Route path="/dashboard/patient/medical-records" element={<MedicalRecords />} />
-            <Route path="/dashboard/patient/find-doctors" element={<FindDoctors />} />
-            <Route path="/dashboard/patient/pharmacy-services" element={<PharmacyServices />} />
-            <Route path="/dashboard/patient/diagnostic-services" element={<DiagnosticServices />} />
-            <Route path="/dashboard/patient/payments" element={<Payments />} />
             
             {/* Doctor dashboard routes */}
             <Route path="/dashboard/doctor" element={<DoctorDashboard />} />

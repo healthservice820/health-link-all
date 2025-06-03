@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { AdsterraAd } from "@/components/AdsterraAd";
 import Layout from "@/components/layout/Layout";
 
-export  const UserDashboard = () => {
+const UserDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
@@ -80,278 +80,280 @@ export  const UserDashboard = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      {/* Welcome Section */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Welcome back, {user.fullName}!</CardTitle>
-              <p className="text-gray-600">
-                {user.plan === 'basic' && "Your free health companion"}
-                {user.plan === 'classic' && "Your essential healthcare plan"}
-                {user.plan === 'premium' && "Your premium health experience"}
-                {user.plan === 'executive' && "Your executive health solution"}
-              </p>
-            </div>
-            <div className="bg-white px-4 py-2 rounded-full shadow-sm">
-              <span className="capitalize font-medium text-sm flex items-center gap-2">
-                {user.plan === 'executive' && <Crown size={16} className="text-amber-500" />}
-                {user.plan} plan
-              </span>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Ad for Basic Plan Users */}
-      {user.plan === 'basic' && (
-        <div className="my-4">
-          <AdsterraAd 
-            adKey="a761ba4fad4c4f940ea99e784e321476"
-            format="iframe"
-            height={250}
-            width={300}
-            className="mx-auto border border-gray-200 rounded"
-          />
-        </div>
-      )}
-
-      {/* Navigation Tabs */}
-      <div className="flex border-b">
-        <button
-          className={`px-4 py-2 font-medium ${activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          Overview
-        </button>
-        <button
-          className={`px-4 py-2 font-medium ${activeTab === 'appointments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('appointments')}
-        >
-          Appointments
-        </button>
-        <button
-          className={`px-4 py-2 font-medium ${activeTab === 'prescriptions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('prescriptions')}
-        >
-          Prescriptions
-        </button>
-        <button
-          className={`px-4 py-2 font-medium ${activeTab === 'lab' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('lab')}
-        >
-          Lab Results
-        </button>
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === 'overview' && (
-        <>
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <DashboardButton 
-              icon={<Stethoscope size={24} />} 
-              label="Book Doctor" 
-              href="/book-doctor" 
-            />
-            <DashboardButton 
-              icon={<Syringe size={24} />} 
-              label="Book Lab Test" 
-              href="/book-lab" 
-            />
-            <DashboardButton 
-              icon={<Pill size={24} />} 
-              label="Order Medicine" 
-              href="/pharmacy" 
-            />
-            <DashboardButton 
-              icon={<Ambulance size={24} />} 
-              label="Emergency" 
-              href="/emergency" 
-              highlight={user.plan !== 'basic'}
-              disabled={user.plan === 'basic'}
-              tooltip={user.plan === 'basic' ? "Upgrade for ambulance services" : ""}
-            />
-          </div>
-
-          {/* Upcoming Appointments */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Upcoming Appointments</CardTitle>
-                <Button asChild variant="ghost" className="text-blue-600">
-                  <Link to="/appointments">View All</Link>
-                </Button>
+    <Layout>
+      <div className="container mx-auto p-4 space-y-6">
+        {/* Welcome Section */}
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Welcome back, {user.fullName}!</CardTitle>
+                <p className="text-gray-600">
+                  {user.plan === 'basic' && "Your free health companion"}
+                  {user.plan === 'classic' && "Your essential healthcare plan"}
+                  {user.plan === 'premium' && "Your premium health experience"}
+                  {user.plan === 'executive' && "Your executive health solution"}
+                </p>
               </div>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex justify-center py-4">
-                  <p>Loading appointments...</p>
-                </div>
-              ) : upcomingAppointments.length > 0 ? (
-                <div className="space-y-4">
-                  {upcomingAppointments.map(appointment => (
-                    <div key={appointment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${
-                          appointment.type === 'doctor' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
-                        }`}>
-                          {appointment.type === 'doctor' ? <Stethoscope size={20} /> : <Syringe size={20} />}
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {appointment.type === 'doctor' ? `Dr. ${appointment.doctorName}` : appointment.testName}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {appointment.date} at {appointment.time}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleCancelAppointment(appointment.id)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/appointments/${appointment.id}`}>
-                            Details
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-gray-500">No upcoming appointments</p>
-                  <Button className="mt-2" asChild>
-                    <Link to="/book-doctor">Book Appointment</Link>
+              <div className="bg-white px-4 py-2 rounded-full shadow-sm">
+                <span className="capitalize font-medium text-sm flex items-center gap-2">
+                  {user.plan === 'executive' && <Crown size={16} className="text-amber-500" />}
+                  {user.plan} plan
+                </span>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Ad for Basic Plan Users */}
+        {user.plan === 'basic' && (
+          <div className="my-4">
+            <AdsterraAd 
+              adKey="a761ba4fad4c4f940ea99e784e321476"
+              format="iframe"
+              height={250}
+              width={300}
+              className="mx-auto border border-gray-200 rounded"
+            />
+          </div>
+        )}
+
+        {/* Navigation Tabs */}
+        <div className="flex border-b">
+          <button
+            className={`px-4 py-2 font-medium ${activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button
+            className={`px-4 py-2 font-medium ${activeTab === 'appointments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('appointments')}
+          >
+            Appointments
+          </button>
+          <button
+            className={`px-4 py-2 font-medium ${activeTab === 'prescriptions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('prescriptions')}
+          >
+            Prescriptions
+          </button>
+          <button
+            className={`px-4 py-2 font-medium ${activeTab === 'lab' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+            onClick={() => setActiveTab('lab')}
+          >
+            Lab Results
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <>
+            {/* Quick Actions */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <DashboardButton 
+                icon={<Stethoscope size={24} />} 
+                label="Book Doctor" 
+                href="/book-doctor" 
+              />
+              <DashboardButton 
+                icon={<Syringe size={24} />} 
+                label="Book Lab Test" 
+                href="/book-lab" 
+              />
+              <DashboardButton 
+                icon={<Pill size={24} />} 
+                label="Order Medicine" 
+                href="/pharmacy" 
+              />
+              <DashboardButton 
+                icon={<Ambulance size={24} />} 
+                label="Emergency" 
+                href="/emergency" 
+                highlight={user.plan !== 'basic'}
+                disabled={user.plan === 'basic'}
+                tooltip={user.plan === 'basic' ? "Upgrade for ambulance services" : ""}
+              />
+            </div>
+
+            {/* Upcoming Appointments */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Upcoming Appointments</CardTitle>
+                  <Button asChild variant="ghost" className="text-blue-600">
+                    <Link to="/appointments">View All</Link>
                   </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Prescriptions */}
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Recent Prescriptions</CardTitle>
-                <Button asChild variant="ghost" className="text-blue-600">
-                  <Link to="/prescriptions">View All</Link>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex justify-center py-4">
-                  <p>Loading prescriptions...</p>
-                </div>
-              ) : recentPrescriptions.length > 0 ? (
-                <div className="space-y-4">
-                  {recentPrescriptions.map(prescription => (
-                    <div key={prescription.id} className="p-3 border rounded-lg">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{prescription.medication}</p>
-                          <p className="text-sm text-gray-600">
-                            {prescription.dosage} • {prescription.frequency}
-                          </p>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex justify-center py-4">
+                    <p>Loading appointments...</p>
+                  </div>
+                ) : upcomingAppointments.length > 0 ? (
+                  <div className="space-y-4">
+                    {upcomingAppointments.map(appointment => (
+                      <div key={appointment.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-full ${
+                            appointment.type === 'doctor' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
+                          }`}>
+                            {appointment.type === 'doctor' ? <Stethoscope size={20} /> : <Syringe size={20} />}
+                          </div>
+                          <div>
+                            <p className="font-medium">
+                              {appointment.type === 'doctor' ? `Dr. ${appointment.doctorName}` : appointment.testName}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {appointment.date} at {appointment.time}
+                            </p>
+                          </div>
                         </div>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          prescription.status === 'active' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {prescription.status}
-                        </span>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleCancelAppointment(appointment.id)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to={`/appointments/${appointment.id}`}>
+                              Details
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center mt-3">
-                        <p className="text-sm">
-                          Refills left: {prescription.refills}
-                        </p>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          disabled={prescription.refills === 0}
-                          onClick={() => handleRefillPrescription(prescription.id)}
-                        >
-                          Request Refill
-                        </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500">No upcoming appointments</p>
+                    <Button className="mt-2" asChild>
+                      <Link to="/book-doctor">Book Appointment</Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Prescriptions */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Recent Prescriptions</CardTitle>
+                  <Button asChild variant="ghost" className="text-blue-600">
+                    <Link to="/prescriptions">View All</Link>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex justify-center py-4">
+                    <p>Loading prescriptions...</p>
+                  </div>
+                ) : recentPrescriptions.length > 0 ? (
+                  <div className="space-y-4">
+                    {recentPrescriptions.map(prescription => (
+                      <div key={prescription.id} className="p-3 border rounded-lg">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium">{prescription.medication}</p>
+                            <p className="text-sm text-gray-600">
+                              {prescription.dosage} • {prescription.frequency}
+                            </p>
+                          </div>
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            prescription.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {prescription.status}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-3">
+                          <p className="text-sm">
+                            Refills left: {prescription.refills}
+                          </p>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            disabled={prescription.refills === 0}
+                            onClick={() => handleRefillPrescription(prescription.id)}
+                          >
+                            Request Refill
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-gray-500">No recent prescriptions</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </>
-      )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500">No recent prescriptions</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
 
-      {activeTab === 'appointments' && (
-        <AppointmentsTab 
-          appointments={upcomingAppointments} 
-          isLoading={isLoading}
-          onCancel={handleCancelAppointment}
-          userPlan={user.plan}
-        />
-      )}
+        {activeTab === 'appointments' && (
+          <AppointmentsTab 
+            appointments={upcomingAppointments} 
+            isLoading={isLoading}
+            onCancel={handleCancelAppointment}
+            userPlan={user.plan}
+          />
+        )}
 
-      {activeTab === 'prescriptions' && (
-        <PrescriptionsTab 
-          prescriptions={recentPrescriptions} 
-          isLoading={isLoading}
-          onRefill={handleRefillPrescription}
-        />
-      )}
+        {activeTab === 'prescriptions' && (
+          <PrescriptionsTab 
+            prescriptions={recentPrescriptions} 
+            isLoading={isLoading}
+            onRefill={handleRefillPrescription}
+          />
+        )}
 
-      {activeTab === 'lab' && (
-        <LabResultsTab userPlan={user.plan} />
-      )}
+        {activeTab === 'lab' && (
+          <LabResultsTab userPlan={user.plan} />
+        )}
 
-      {/* Plan Features */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Plan Benefits</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {planFeatures[user.plan].map((feature, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-                <div className="p-2 bg-blue-100 rounded-full text-blue-600">
-                  {feature.icon}
-                </div>
-                <span className="font-medium">{feature.name}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Upgrade Prompt for Basic Users */}
-      {user.plan === 'basic' && (
-        <Card className="border-blue-200 bg-blue-50">
+        {/* Plan Features */}
+        <Card>
           <CardHeader>
-            <CardTitle className="text-blue-800">Upgrade for More Features</CardTitle>
+            <CardTitle>Your Plan Benefits</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">Get access to real doctors, medicine discounts, and more!</p>
-            <Button asChild variant="outline" className="border-blue-300 text-blue-700">
-              <Link to="/plans">View Upgrade Options</Link>
-            </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {planFeatures[user.plan].map((feature, index) => (
+                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+                  <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                    {feature.icon}
+                  </div>
+                  <span className="font-medium">{feature.name}</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
-      )}
-    </div>
+
+        {/* Upgrade Prompt for Basic Users */}
+        {user.plan === 'basic' && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="text-blue-800">Upgrade for More Features</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">Get access to real doctors, medicine discounts, and more!</p>
+              <Button asChild variant="outline" className="border-blue-300 text-blue-700">
+                <Link to="/plans">View Upgrade Options</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </Layout>
   );
 };
 
@@ -659,3 +661,5 @@ const DashboardButton = ({ icon, label, href, disabled = false, tooltip = "", hi
   </Button>
   
 );
+
+export default UserDashboard;

@@ -9,131 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-         
-      provider_applications: {
-        Row: {
-          id: string;
-          provider_type: 'doctor' | 'pharmacy' | 'diagnostic' | 'ambulance';
-          organization_name: string | null;
-          contact_person: string;
-          email: string;
-          phone: string;
-          address: string | null;
-          license_number: string | null;
-          license_document_url: string | null;
-          other_documents_urls: string[] | null;
-          status: 'pending' | 'approved' | 'rejected' | 'needs_revision';
-          rejection_reason: string | null;
-          submitted_at: string;
-          reviewed_at: string | null;
-          reviewer_id: string | null;
-        };
-        Insert: {
-          id?: string;
-          provider_type: 'doctor' | 'pharmacy' | 'diagnostic' | 'ambulance';
-          organization_name?: string | null;
-          contact_person: string;
-          email: string;
-          phone: string;
-          address?: string | null;
-          license_number?: string | null;
-          license_document_url?: string | null;
-          other_documents_urls?: string[] | null;
-          status?: 'pending' | 'approved' | 'rejected' | 'needs_revision';
-          rejection_reason?: string | null;
-          submitted_at?: string;
-          reviewed_at?: string | null;
-          reviewer_id?: string | null;
-        };
-        Update: {
-          id?: string;
-          provider_type?: 'doctor' | 'pharmacy' | 'diagnostic' | 'ambulance';
-          organization_name?: string | null;
-          contact_person?: string;
-          email?: string;
-          phone?: string;
-          address?: string | null;
-          license_number?: string | null;
-          license_document_url?: string | null;
-          other_documents_urls?: string[] | null;
-          status?: 'pending' | 'approved' | 'rejected' | 'needs_revision';
-          rejection_reason?: string | null;
-          submitted_at?: string;
-          reviewed_at?: string | null;
-          reviewer_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "provider_applications_reviewer_id_fkey";
-            columns: ["reviewer_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      
-      provider_profiles: {
-        Row: {
-          id: string;
-          user_id: string;
-          application_id: string;
-          provider_type: 'doctor' | 'pharmacy' | 'diagnostic' | 'ambulance';
-          display_name: string;
-          contact_email: string;
-          contact_phone: string;
-          specialization: string | null;
-          services_offered: string[] | null;
-          coverage_area: string | null;
-          is_verified: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          application_id: string;
-          provider_type: 'doctor' | 'pharmacy' | 'diagnostic' | 'ambulance';
-          display_name: string;
-          contact_email: string;
-          contact_phone: string;
-          specialization?: string | null;
-          services_offered?: string[] | null;
-          coverage_area?: string | null;
-          is_verified?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          application_id?: string;
-          provider_type?: 'doctor' | 'pharmacy' | 'diagnostic' | 'ambulance';
-          display_name?: string;
-          contact_email?: string;
-          contact_phone?: string;
-          specialization?: string | null;
-          services_offered?: string[] | null;
-          coverage_area?: string | null;
-          is_verified?: boolean;
-          created_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "provider_profiles_application_id_fkey";
-            columns: ["application_id"];
-            isOneToOne: true;
-            referencedRelation: "provider_applications";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "provider_profiles_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: true;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          }
-        ];
-      }
-
       admins: {
         Row: {
           created_at: string | null
@@ -356,31 +231,165 @@ export type Database = {
         Row: {
           created_at: string
           first_name: string | null
+          full_name: string | null
+          health_plan: string | null
           id: string
           last_name: string | null
+          organization_name: string | null
+          payment_source: string | null
+          phone_number: string | null
           phone_text: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string
+          user_id_external: string | null
         }
         Insert: {
           created_at?: string
           first_name?: string | null
+          full_name?: string | null
+          health_plan?: string | null
           id: string
           last_name?: string | null
+          organization_name?: string | null
+          payment_source?: string | null
+          phone_number?: string | null
           phone_text?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
+          user_id_external?: string | null
         }
         Update: {
           created_at?: string
           first_name?: string | null
+          full_name?: string | null
+          health_plan?: string | null
           id?: string
           last_name?: string | null
+          organization_name?: string | null
+          payment_source?: string | null
+          phone_number?: string | null
           phone_text?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
+          user_id_external?: string | null
         }
         Relationships: []
+      }
+      provider_applications: {
+        Row: {
+          address: string | null
+          contact_person: string
+          coverage_area: string | null
+          email: string
+          id: string
+          license_document_url: string | null
+          license_number: string | null
+          organization_name: string | null
+          other_documents_urls: string[] | null
+          phone: string
+          provider_type: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          services_offered: string[] | null
+          specialization: string | null
+          status: string | null
+          submitted_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_person: string
+          coverage_area?: string | null
+          email: string
+          id?: string
+          license_document_url?: string | null
+          license_number?: string | null
+          organization_name?: string | null
+          other_documents_urls?: string[] | null
+          phone: string
+          provider_type: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          services_offered?: string[] | null
+          specialization?: string | null
+          status?: string | null
+          submitted_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string
+          coverage_area?: string | null
+          email?: string
+          id?: string
+          license_document_url?: string | null
+          license_number?: string | null
+          organization_name?: string | null
+          other_documents_urls?: string[] | null
+          phone?: string
+          provider_type?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          services_offered?: string[] | null
+          specialization?: string | null
+          status?: string | null
+          submitted_at?: string | null
+        }
+        Relationships: []
+      }
+      provider_profiles: {
+        Row: {
+          application_id: string
+          contact_email: string
+          contact_phone: string
+          coverage_area: string | null
+          created_at: string | null
+          display_name: string
+          id: string
+          is_verified: boolean | null
+          provider_type: string
+          services_offered: string[] | null
+          specialization: string | null
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          contact_email: string
+          contact_phone: string
+          coverage_area?: string | null
+          created_at?: string | null
+          display_name: string
+          id?: string
+          is_verified?: boolean | null
+          provider_type: string
+          services_offered?: string[] | null
+          specialization?: string | null
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          contact_email?: string
+          contact_phone?: string
+          coverage_area?: string | null
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          is_verified?: boolean | null
+          provider_type?: string
+          services_offered?: string[] | null
+          specialization?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_profiles_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "provider_applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -404,23 +413,6 @@ export type Database = {
       [_ in never]: never
     }
   }
-}
-
-export type ProviderApplication = Tables<'provider_applications'>;
-export type ProviderProfile = Tables<'provider_profiles'>;
-
-export interface ApplicationStats {
-  total: number;
-  pending: number;
-  approved: number;
-  rejected: number;
-  byType: Record<ProviderApplication['provider_type'], number>;
-}
-
-export interface ProviderStats {
-  total: number;
-  verified: number;
-  byType: Record<ProviderProfile['provider_type'], number>;
 }
 
 type DefaultSchema = Database[Extract<keyof Database, "public">]
