@@ -1,5 +1,5 @@
 // src/components/AdsterraAd.tsx
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 type AdsterraAdProps = {
   adKey: string;
@@ -7,6 +7,7 @@ type AdsterraAdProps = {
   height?: number;
   width?: number;
   className?: string;
+  isLoggedIn?: boolean;
 };
 
 export const AdsterraAd = ({
@@ -15,10 +16,18 @@ export const AdsterraAd = ({
   height = 250,
   width = 300,
   className = "",
+  isLoggedIn = false,
 }: AdsterraAdProps) => {
+  const adContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     // Only load ads in production
-    if (process.env.NODE_ENV === "production") {
+    if (import.meta.env.VITE_NODE_ENV === "production") {
+      // Clear previous content
+      if (adContainerRef.current) {
+        adContainerRef.current.innerHTML = '';
+      }
+
       const script = document.createElement("script");
       script.type = "text/javascript";
       script.innerHTML = `
@@ -30,22 +39,28 @@ export const AdsterraAd = ({
           'params': {}
         };
       `;
-      document.body.appendChild(script);
-
+      
       const invokeScript = document.createElement("script");
       invokeScript.type = "text/javascript";
       invokeScript.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
-      document.body.appendChild(invokeScript);
+
+      // Append scripts to the ad container instead of body
+      if (adContainerRef.current) {
+        adContainerRef.current.appendChild(script);
+        adContainerRef.current.appendChild(invokeScript);
+      }
 
       return () => {
-        document.body.removeChild(script);
-        document.body.removeChild(invokeScript);
+        // Cleanup when component unmounts
+        if (adContainerRef.current) {
+          adContainerRef.current.innerHTML = '';
+        }
       };
     }
-  }, [adKey, format, height, width]);
+  }, [adKey, format, height, width, isLoggedIn]);
 
   // In development, show a placeholder
-  if (process.env.NODE_ENV !== "production") {
+  if (import.meta.env.VITE_NODE_ENV !== "production") {
     return (
       <div
         className={`bg-gray-200 flex items-center justify-center ${className}`}
@@ -56,5 +71,5 @@ export const AdsterraAd = ({
     );
   }
 
-  return <div id={`adsterra-${adKey}`} className={className} />;
+  return <div ref={adContainerRef} id={`adsterra-${adKey}`} className={className} />;
 };

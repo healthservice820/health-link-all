@@ -86,70 +86,60 @@ const CustomerDashboard = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto p-4 space-y-6">
-        {/* Welcome Section */}
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle>Welcome back, {userName}!</CardTitle>
-                <p className="text-gray-600">
-                  {userPlan === 'basic' && "Your free health companion"}
-                  {userPlan === 'classic' && "Your essential healthcare plan"}
-                  {userPlan === 'premium' && "Your premium health experience"}
-                  {userPlan === 'executive' && "Your executive health solution"}
-                </p>
-              </div>
-              <div className="bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="capitalize font-medium text-sm flex items-center gap-2">
-                  {userPlan === 'executive' && <Crown size={16} className="text-amber-500" />}
-                  {userPlan} plan
-                </span>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+       <div className="container mx-auto px-4 py-6 space-y-6">
+    {/* Welcome Section - Redesigned */}
+    <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {userName}!</h1>
+          <p className="text-blue-100 mt-1">
+            {userPlan === 'basic' && "Your free health companion"}
+            {userPlan === 'classic' && "Your essential healthcare plan"}
+            {userPlan === 'premium' && "Your premium health experience"}
+            {userPlan === 'executive' && "Your executive health solution"}
+          </p>
+        </div>
+        <div className="mt-4 md:mt-0 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+          <span className="capitalize font-medium text-sm flex items-center gap-2">
+            {userPlan === 'executive' && <Crown size={16} className="text-amber-300" />}
+            {userPlan} plan
+          </span>
+        </div>
+      </div>
+    </div>
 
         {/* Ad for Basic Plan Users */}
         {userPlan === 'basic' && (
-          <div className="my-4">
-            <AdsterraAd 
-              adKey="a761ba4fad4c4f940ea99e784e321476"
-              format="iframe"
-              height={250}
-              width={300}
-              className="mx-auto border border-gray-200 rounded"
-            />
-          </div>
-        )}
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div className="w-full max-w-[300px] mx-auto"> {/* Control the width */}
+      <AdsterraAd 
+        adKey={import.meta.env.VITE_ADSTERRA_KEY}
+        format="iframe"
+        height={250}
+        width={300}
+        className="mx-auto border border-gray-200 rounded-lg shadow-sm"
+        isLoggedIn={!!user}
+      />
+    </div>
+  </div>
+)}
 
         {/* Navigation Tabs */}
-        <div className="flex border-b">
-          <button
-            className={`px-4 py-2 font-medium ${activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            Overview
-          </button>
-          <button
-            className={`px-4 py-2 font-medium ${activeTab === 'appointments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('appointments')}
-          >
-            Appointments
-          </button>
-          <button
-            className={`px-4 py-2 font-medium ${activeTab === 'prescriptions' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('prescriptions')}
-          >
-            Prescriptions
-          </button>
-          <button
-            className={`px-4 py-2 font-medium ${activeTab === 'lab' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
-            onClick={() => setActiveTab('lab')}
-          >
-            Lab Results
-          </button>
-        </div>
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl">
+      {['overview', 'appointments', 'prescriptions', 'lab'].map((tab) => (
+        <button
+          key={tab}
+          className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-all ${
+            activeTab === tab 
+              ? 'bg-white shadow-sm text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setActiveTab(tab)}
+        >
+          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+        </button>
+      ))}
+    </div>
 
         {/* Tab Content */}
         {activeTab === 'overview' && (

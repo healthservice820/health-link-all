@@ -21,6 +21,18 @@ interface PaystackResponse {
   trans: string;
   transaction: string;
   trxref: string;
+  // Add more fields as needed from Paystack docs
+}
+
+interface PaystackConfig {
+  reference: string;
+  email: string;
+  amount: number;
+  publicKey: string;
+  currency?: string;
+  onSuccess: (response: PaystackResponse) => void;
+  onClose: () => void;
+  // Add other Paystack config options as needed
 }
 
 const planPrices = {
@@ -52,12 +64,14 @@ const SignUpWithPlan = () => {
     }
   });
 
-  const config = useMemo(() => ({
+  const config = useMemo<PaystackConfig>(() => ({
     reference: (new Date()).getTime().toString(),
     email: formData.cardDetails.email || formData.email,
     amount: planPrices[formData.selectedPlan],
-    publicKey: import.meta.env.VITE_PAYSTACK_KEY || "pk_test_example",
+    publicKey: import.meta.env.VITE_PAYSTACK_KEY,
     currency: "NGN",
+    onSuccess: (response: PaystackResponse) => onPaystackSuccess(response),
+    onClose: () => onPaystackClose()
   }), [formData.cardDetails.email, formData.email, formData.selectedPlan]);
 
   const initializePayment = usePaystackPayment(config);
@@ -139,39 +153,33 @@ const SignUpWithPlan = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    console.log("Form submitted with data:", formData);
-    
     if (!formData.agreeToTerms) {
       toast.error("You must agree to the terms and conditions");
       setIsLoading(false);
       return;
     }
-
-    // For paid plans with self payment, initiate Paystack payment
+  
     if (formData.paymentSource === "self" && formData.selectedPlan !== "basic") {
-      console.log("Initiating Paystack payment");
       setPaymentInitiated(true);
-      
-      // Use email from card details if provided, otherwise use main email
       const paymentEmail = formData.cardDetails.email || formData.email;
       
-      // Update config with the correct email
-      const updatedConfig = {
-        ...config,
-        email: paymentEmail,
-      };
-      
-      console.log("Payment config:", updatedConfig);
-      initializePayment(onPaystackSuccess, onPaystackClose);
+      try {
+        // This is now properly typed
+        await initializePayment({
+          onSuccess: (response: PaystackResponse) => onPaystackSuccess(response),
+          onClose: () => onPaystackClose()
+        });
+      } catch (error) {
+        console.error("Payment initialization error:", error);
+        toast.error("Failed to initialize payment");
+        setPaymentInitiated(false);
+      }
     } else {
-      // For basic plan or non-self payment, create account directly
-      console.log("Creating account directly (no payment required)");
       try {
         await handleAccountCreation();
         toast.success("Account created successfully!");
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error("Account creation error:", error);
         toast.error(errorMessage || "Failed to create account");
       }
     }
