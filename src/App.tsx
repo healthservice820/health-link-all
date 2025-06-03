@@ -15,7 +15,6 @@ import Diagnostics from "./pages/Diagnostics";
 import Symptoms from "./pages/Symptoms";
 import About from "./pages/About";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import SignUpWithPlan from "./pages/SignUpWithPlan";
 
 import Emergency from "./pages/Emergency";
@@ -23,7 +22,7 @@ import Plans from "./pages/Plans"
 
 // Dashboard imports
 import DashboardRouter from "./components/dashboard/DashboardRouter";
-import PatientDashboard from "./pages/dashboard/PatientDashboard";
+import {UserDashboard} from "./pages/dashboard/CustomerDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import PharmacyDashboard from "./pages/dashboard/PharmacyDashboard";
 import DiagnosticsDashboard from "./pages/dashboard/DiagnosticsDashboard";
@@ -125,7 +124,6 @@ const App = () => (
             <Route path="/symptoms" element={<Symptoms />} />
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/plansignup" element={<SignUpWithPlan />} />
             <Route path="/emergency" element={<Emergency />} />
             
@@ -133,7 +131,7 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardRouter />} />
             
             {/* Patient dashboard routes */}
-            <Route path="/dashboard/patient" element={<PatientDashboard />} />
+            <Route path="/dashboard/patient" element={<UserDashboard />} />
             <Route path="/dashboard/patient/appointments" element={<Appointments />} />
             <Route path="/dashboard/patient/medical-records" element={<MedicalRecords />} />
             <Route path="/dashboard/patient/find-doctors" element={<FindDoctors />} />
