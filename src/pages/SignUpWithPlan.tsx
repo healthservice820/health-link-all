@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +31,7 @@ const planPrices = {
   executive: 1000000 // ₦10,000 in kobo
 };
 
-const SignUpWithPlan = () => {
+const SignUp = () => {
   const location = useLocation();
   const selectedPlan = (location.state?.plan as HealthPlan) || "basic";
   const [currentStep, setCurrentStep] = useState(1);
@@ -94,7 +95,7 @@ const SignUpWithPlan = () => {
   const onPaystackSuccess = (response: PaystackResponse) => {
     handleAccountCreation()
       .then(() => {
-        toast.success("Payment successful! Account created.");
+        toast.success("Payment successful! Account created. Please check your email for verification.");
       })
       .catch((error: unknown) => {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -108,18 +109,17 @@ const SignUpWithPlan = () => {
   };
 
   const handleAccountCreation = async () => {
-    await signUp(
-      formData.email, 
-      formData.password,
-      {
-        fullName: formData.fullName,
-        phoneNumber: formData.phoneNumber,
-        paymentSource: formData.paymentSource,
-        organizationName: formData.paymentSource !== "self" ? formData.organizationName : null,
-        userId: formData.paymentSource !== "self" ? formData.userId : null,
-        healthPlan: formData.selectedPlan,
-      }
-    );
+    const userData = {
+      fullName: formData.fullName,
+      phoneNumber: formData.phoneNumber,
+      paymentSource: formData.paymentSource,
+      organizationName: formData.paymentSource !== "self" ? formData.organizationName : null,
+      userId: formData.paymentSource !== "self" ? formData.userId : null,
+      healthPlan: formData.selectedPlan,
+      role: "patient", // Default role for SignUpWithPlan
+    };
+    
+    await signUp(formData.email, formData.password, userData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,7 +138,7 @@ const SignUpWithPlan = () => {
     } else {
       try {
         await handleAccountCreation();
-        toast.success("Account created successfully!");
+        toast.success("Account created successfully! Please check your email for verification.");
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         toast.error(errorMessage || "Failed to create account");
@@ -146,7 +146,6 @@ const SignUpWithPlan = () => {
     }
     setIsLoading(false);
   };
-
 
   const nextStep = () => {
     if (currentStep === 1 && !formData.fullName) {
@@ -444,10 +443,17 @@ const SignUpWithPlan = () => {
               )}
             </CardFooter>
           </form>
+          
+          <div className="text-center text-sm pb-4">
+            Already have an account?{" "}
+            <Link to="/login" className="text-healthcare-primary hover:underline">
+              Sign in
+            </Link>
+          </div>
         </Card>
       </div>
     </Layout>
   );
 };
 
-export default SignUpWithPlan;
+export default SignUp;
