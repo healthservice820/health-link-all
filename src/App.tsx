@@ -21,7 +21,6 @@ import Plans from "./pages/Plans"
 
 // Dashboard imports
 import DashboardRouter from "./components/dashboard/DashboardRouter";
-import UserDashboard from "./pages/dashboard/CustomerDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import PharmacyDashboard from "./pages/dashboard/PharmacyDashboard";
 import DiagnosticsDashboard from "./pages/dashboard/DiagnosticsDashboard";
@@ -103,6 +102,7 @@ import ProviderSearch from "./pages/dashboard/customer-care/ProviderSearch";
 import RecentPatients from "./pages/dashboard/customer-care/RecentPatients";
 import LocationServices from "./pages/dashboard/customer-care/LocationServices";
 import ScrollToTop from "./ScrollToTop"
+import CustomerDashboard from "./pages/dashboard/CustomerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -130,7 +130,7 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardRouter />} />
             
             {/* Patient dashboard routes */}
-            <Route path="/dashboard/patient" element={<UserDashboard />} />
+            <Route path="/dashboard/patient" element={<CustomerDashboard />} />
             
             {/* Doctor dashboard routes */}
             <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
