@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import { AdsterraAd } from "@/components/AdsterraAd";
 import Layout from "@/components/layout/Layout";
 
-const UserDashboard = () => {
-  const { user } = useAuth();
+const CustomerDashboard = () => {
+  const { user, profile, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [recentPrescriptions, setRecentPrescriptions] = useState([]);
@@ -42,7 +42,12 @@ const UserDashboard = () => {
     fetchData();
   }, []);
 
+  if (authLoading) return <div>Loading...</div>;
   if (!user) return <Navigate to="/login" />;
+
+  // Get user plan from profile, default to 'basic' if not available
+  const userPlan = profile?.health_plan || 'basic';
+  const userName = profile?.full_name || profile?.first_name || 'User';
 
   // Plan-specific features
   const planFeatures = {
@@ -87,18 +92,18 @@ const UserDashboard = () => {
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle>Welcome back, {user.fullName}!</CardTitle>
+                <CardTitle>Welcome back, {userName}!</CardTitle>
                 <p className="text-gray-600">
-                  {user.plan === 'basic' && "Your free health companion"}
-                  {user.plan === 'classic' && "Your essential healthcare plan"}
-                  {user.plan === 'premium' && "Your premium health experience"}
-                  {user.plan === 'executive' && "Your executive health solution"}
+                  {userPlan === 'basic' && "Your free health companion"}
+                  {userPlan === 'classic' && "Your essential healthcare plan"}
+                  {userPlan === 'premium' && "Your premium health experience"}
+                  {userPlan === 'executive' && "Your executive health solution"}
                 </p>
               </div>
               <div className="bg-white px-4 py-2 rounded-full shadow-sm">
                 <span className="capitalize font-medium text-sm flex items-center gap-2">
-                  {user.plan === 'executive' && <Crown size={16} className="text-amber-500" />}
-                  {user.plan} plan
+                  {userPlan === 'executive' && <Crown size={16} className="text-amber-500" />}
+                  {userPlan} plan
                 </span>
               </div>
             </div>
@@ -106,7 +111,7 @@ const UserDashboard = () => {
         </Card>
 
         {/* Ad for Basic Plan Users */}
-        {user.plan === 'basic' && (
+        {userPlan === 'basic' && (
           <div className="my-4">
             <AdsterraAd 
               adKey="a761ba4fad4c4f940ea99e784e321476"
@@ -170,9 +175,9 @@ const UserDashboard = () => {
                 icon={<Ambulance size={24} />} 
                 label="Emergency" 
                 href="/emergency" 
-                highlight={user.plan !== 'basic'}
-                disabled={user.plan === 'basic'}
-                tooltip={user.plan === 'basic' ? "Upgrade for ambulance services" : ""}
+                highlight={userPlan !== 'basic'}
+                disabled={userPlan === 'basic'}
+                tooltip={userPlan === 'basic' ? "Upgrade for ambulance services" : ""}
               />
             </div>
 
@@ -303,7 +308,7 @@ const UserDashboard = () => {
             appointments={upcomingAppointments} 
             isLoading={isLoading}
             onCancel={handleCancelAppointment}
-            userPlan={user.plan}
+            userPlan={userPlan}
           />
         )}
 
@@ -316,7 +321,7 @@ const UserDashboard = () => {
         )}
 
         {activeTab === 'lab' && (
-          <LabResultsTab userPlan={user.plan} />
+          <LabResultsTab userPlan={userPlan} />
         )}
 
         {/* Plan Features */}
@@ -326,7 +331,7 @@ const UserDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {planFeatures[user.plan].map((feature, index) => (
+              {planFeatures[userPlan]?.map((feature, index) => (
                 <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
                   <div className="p-2 bg-blue-100 rounded-full text-blue-600">
                     {feature.icon}
@@ -339,7 +344,7 @@ const UserDashboard = () => {
         </Card>
 
         {/* Upgrade Prompt for Basic Users */}
-        {user.plan === 'basic' && (
+        {userPlan === 'basic' && (
           <Card className="border-blue-200 bg-blue-50">
             <CardHeader>
               <CardTitle className="text-blue-800">Upgrade for More Features</CardTitle>
@@ -662,4 +667,4 @@ const DashboardButton = ({ icon, label, href, disabled = false, tooltip = "", hi
   
 );
 
-export default UserDashboard;
+export default CustomerDashboard;
