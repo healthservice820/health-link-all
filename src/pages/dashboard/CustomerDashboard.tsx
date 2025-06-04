@@ -189,22 +189,21 @@ const CustomerDashboard = () => {
         )}
 
         {/* Navigation Tabs - Updated for mobile responsiveness */}
-        <div className="flex overflow-x-auto pb-2 bg-gray-100 rounded-xl">
-          <div className="flex space-x-1 p-1 min-w-max">
-            {['overview', 'appointments', 'prescriptions', 'lab'].map((tab) => (
-              <button
-                key={tab}
-                className={`py-2 px-4 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === tab
-                    ? 'bg-white shadow-sm text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
+        {/* Alternative equal-width tabs */}
+        <div className="grid grid-cols-4 gap-1 bg-gray-100 p-1 rounded-xl">
+          {['overview', 'appointments', 'prescriptions', 'lab'].map((tab) => (
+            <button
+              key={tab}
+              className={`py-2 px-1 text-sm font-medium rounded-lg transition-all truncate ${
+                activeTab === tab
+                  ? 'bg-white shadow-sm text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
         {/* Tab Content */}
         {activeTab === 'overview' && (
