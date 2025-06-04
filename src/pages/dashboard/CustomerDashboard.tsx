@@ -6,6 +6,10 @@ import { Link, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AdsterraAd } from "@/components/AdsterraAd";
 import Layout from "@/components/layout/Layout";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
+import { TooltipContent } from "@/components/ui/tooltip";
+import { TooltipTrigger } from "@/components/ui/tooltip";
 
 const CustomerDashboard = () => {
   const { user, profile, isLoading: authLoading } = useAuth();
@@ -144,32 +148,39 @@ const CustomerDashboard = () => {
         {/* Tab Content */}
         {activeTab === 'overview' && (
           <>
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <DashboardButton 
-                icon={<Stethoscope size={24} />} 
-                label="Book Doctor" 
-                href="/book-doctor" 
-              />
-              <DashboardButton 
-                icon={<Syringe size={24} />} 
-                label="Book Lab Test" 
-                href="/book-lab" 
-              />
-              <DashboardButton 
-                icon={<Pill size={24} />} 
-                label="Order Medicine" 
-                href="/pharmacy" 
-              />
-              <DashboardButton 
-                icon={<Ambulance size={24} />} 
-                label="Emergency" 
-                href="/emergency" 
-                highlight={userPlan !== 'basic'}
-                disabled={userPlan === 'basic'}
-                tooltip={userPlan === 'basic' ? "Upgrade for ambulance services" : ""}
-              />
-            </div>
+            {/* Quick Actions - Modern Tile Design */}
+<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+  <DashboardButton 
+    icon={<Stethoscope className="h-6 w-6 text-blue-600" />} 
+    label="Book Doctor" 
+    href="/book-doctor"
+    className="bg-white hover:bg-blue-50 border border-gray-200"
+  />
+  <DashboardButton 
+    icon={<Syringe className="h-6 w-6 text-purple-600" />} 
+    label="Book Lab Test" 
+    href="/book-lab"
+    className="bg-white hover:bg-purple-50 border border-gray-200"
+  />
+  <DashboardButton 
+    icon={<Pill className="h-6 w-6 text-green-600" />} 
+    label="Order Medicine" 
+    href="/pharmacy"
+    className="bg-white hover:bg-green-50 border border-gray-200"
+  />
+  <DashboardButton 
+    icon={<Ambulance className="h-6 w-6 text-red-600" />} 
+    label="Emergency" 
+    href="/emergency"
+    disabled={userPlan === 'basic'}
+    className={`${
+      userPlan === 'basic' 
+        ? 'bg-gray-100 text-gray-400' 
+        : 'bg-white hover:bg-red-50 border border-gray-200'
+    }`}
+    tooltip={userPlan === 'basic' ? "Upgrade for ambulance services" : ""}
+  />
+</div>
 
             {/* Upcoming Appointments */}
             <Card>
@@ -189,37 +200,40 @@ const CustomerDashboard = () => {
                 ) : upcomingAppointments.length > 0 ? (
                   <div className="space-y-4">
                     {upcomingAppointments.map(appointment => (
-                      <div key={appointment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full ${
-                            appointment.type === 'doctor' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
-                          }`}>
-                            {appointment.type === 'doctor' ? <Stethoscope size={20} /> : <Syringe size={20} />}
-                          </div>
-                          <div>
-                            <p className="font-medium">
-                              {appointment.type === 'doctor' ? `Dr. ${appointment.doctorName}` : appointment.testName}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {appointment.date} at {appointment.time}
-                            </p>
-                          </div>
+                      <div key={appointment.id} className="flex items-center justify-between p-4 rounded-lg bg-white border border-gray-100 shadow-xs">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${
+                          appointment.type === 'doctor' 
+                            ? 'bg-blue-100 text-blue-600' 
+                            : 'bg-purple-100 text-purple-600'
+                        }`}>
+                          {appointment.type === 'doctor' ? <Stethoscope size={20} /> : <Syringe size={20} />}
                         </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleCancelAppointment(appointment.id)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button variant="outline" size="sm" asChild>
-                            <Link to={`/appointments/${appointment.id}`}>
-                              Details
-                            </Link>
-                          </Button>
+                        <div>
+                          <p className="font-medium">
+                            {appointment.type === 'doctor' ? `Dr. ${appointment.doctorName}` : appointment.testName}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">{appointment.date}</span> at {appointment.time}
+                          </p>
                         </div>
                       </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-gray-300 hover:bg-gray-50"
+                          onClick={() => handleCancelAppointment(appointment.id)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button variant="outline" size="sm" className="border-blue-300 hover:bg-blue-50" asChild>
+                          <Link to={`/appointments/${appointment.id}`}>
+                            Details
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
                     ))}
                   </div>
                 ) : (
@@ -315,23 +329,23 @@ const CustomerDashboard = () => {
         )}
 
         {/* Plan Features */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Plan Benefits</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {planFeatures[userPlan]?.map((feature, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-                  <div className="p-2 bg-blue-100 rounded-full text-blue-600">
-                    {feature.icon}
-                  </div>
-                  <span className="font-medium">{feature.name}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <Card className="rounded-xl border border-gray-100">
+  <CardHeader>
+    <CardTitle className="text-lg font-semibold">Your Plan Benefits</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {planFeatures[userPlan]?.map((feature, index) => (
+        <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+          <div className="p-2 rounded-full bg-white shadow-xs">
+            {feature.icon}
+          </div>
+          <span className="font-medium text-sm">{feature.name}</span>
+        </div>
+      ))}
+    </div>
+  </CardContent>
+</Card>
 
         {/* Upgrade Prompt for Basic Users */}
         {userPlan === 'basic' && (
@@ -639,22 +653,66 @@ const LabResultsTab = ({ userPlan }) => {
 };
 
 // Helper Components
-const DashboardButton = ({ icon, label, href, disabled = false, tooltip = "", highlight = false }) => (
-  <Button 
-    asChild 
-    variant={highlight ? "default" : "outline"} 
-    className={`h-24 flex-col gap-2 ${highlight ? 'shadow-md' : ''}`} 
-    disabled={disabled}
-  >
-    <Link to={href}>
-      {icon}
-      <span>{label}</span>
+
+  
+interface DashboardButtonProps {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+  className?: string;
+  disabled?: boolean;
+  tooltip?: string;
+}
+
+const DashboardButton = ({
+  icon,
+  label,
+  href,
+  className = "",
+  disabled = false,
+  tooltip = ""
+}: DashboardButtonProps) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          asChild
+          variant="ghost"
+          disabled={disabled}
+          className={`h-24 flex-col gap-3 rounded-xl transition-all ${className}`}
+        >
+          <Link to={href}>
+            <div className="p-2 rounded-full bg-opacity-20">
+              {icon}
+            </div>
+            <span className="font-medium text-sm">{label}</span>
+          </Link>
+        </Button>
+      </TooltipTrigger>
       {tooltip && (
-        <span className="sr-only">{tooltip}</span>
+        <TooltipContent>
+          <p>{tooltip}</p>
+        </TooltipContent>
       )}
-    </Link>
-  </Button>
+    </Tooltip>
+  </TooltipProvider>
   
 );
+interface EmptyStateProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  action?: React.ReactNode;
+}
+
+const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => (
+  <div className="text-center py-8 space-y-3">
+    <div className="mx-auto h-12 w-12 text-gray-400">{icon}</div>
+    <h3 className="text-sm font-medium text-gray-900">{title}</h3>
+    <p className="text-sm text-gray-500">{description}</p>
+    {action && <div className="mt-4">{action}</div>}
+  </div>
+);
+
 
 export default CustomerDashboard;
