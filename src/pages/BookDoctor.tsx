@@ -19,6 +19,12 @@ import {
   Star,
   Plus,
   X,
+  Video,
+  Phone,
+  MessageSquare,
+  Navigation,
+  Locate,
+  Loader2,
 } from 'lucide-react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
@@ -33,23 +39,91 @@ import {
 } from '@/components/ui/select'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
 const BookDoctor = () => {
   const { user, profile, isLoading: authLoading } = useAuth()
-  const [specialty, setSpecialty] = useState('')
+  const [specialty, setSpecialty] = useState('all')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [doctors, setDoctors] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [userLocation, setUserLocation] = useState(null)
+  const [locationError, setLocationError] = useState(null)
+  const [selectedDoctor, setSelectedDoctor] = useState(null)
+  const [consultationType, setConsultationType] = useState('physical')
+  const [notes, setNotes] = useState('')
+  const [isBooking, setIsBooking] = useState(false)
+  const [bookingSuccess, setBookingSuccess] = useState(false)
   const navigate = useNavigate()
 
+  // Consultation types
+  const consultationTypes = [
+    {
+      id: 'physical',
+      label: 'In-Person Visit',
+      icon: <User className="h-4 w-4" />,
+    },
+    {
+      id: 'video',
+      label: 'Video Consultation',
+      icon: <Video className="h-4 w-4" />,
+    },
+    { id: 'voice', label: 'Voice Call', icon: <Phone className="h-4 w-4" /> },
+    {
+      id: 'text',
+      label: 'Text Chat',
+      icon: <MessageSquare className="h-4 w-4" />,
+    },
+  ]
+
+  // Get user location
+  const getUserLocation = () => {
+    setIsLoading(true)
+    setLocationError(null)
+
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser')
+      setIsLoading(false)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        })
+        setIsLoading(false)
+      },
+      (error) => {
+        setLocationError('Unable to retrieve your location')
+        setIsLoading(false)
+      },
+    )
+  }
+
   useEffect(() => {
-    // Simulate fetching doctors data
+    getUserLocation()
+  }, [])
+
+  useEffect(() => {
+    // Simulate fetching doctors data with location filtering
     const fetchDoctors = async () => {
       setIsLoading(true)
       try {
-        // Mock data - in a real app, you would fetch from your API
+        // Mock data - in a real app, you would fetch from your API with location parameters
         const mockDoctors = [
           {
             id: 1,
@@ -60,6 +134,11 @@ const BookDoctor = () => {
             reviews: 124,
             availableDates: ['2023-06-15', '2023-06-16', '2023-06-17'],
             image: '/doctors/doctor1.jpg',
+            distance: userLocation ? '0.5 km away' : '5 km away',
+            coordinates: { lat: 6.5244, lng: 3.3792 }, // Lagos coordinates
+            acceptsVideo: true,
+            acceptsVoice: true,
+            acceptsText: true,
           },
           {
             id: 2,
@@ -70,6 +149,11 @@ const BookDoctor = () => {
             reviews: 215,
             availableDates: ['2023-06-15', '2023-06-18'],
             image: '/doctors/doctor2.jpg',
+            distance: userLocation ? '1.2 km away' : '7 km away',
+            coordinates: { lat: 6.5244, lng: 3.3792 },
+            acceptsVideo: true,
+            acceptsVoice: false,
+            acceptsText: true,
           },
           {
             id: 3,
@@ -80,16 +164,11 @@ const BookDoctor = () => {
             reviews: 98,
             availableDates: ['2023-06-16', '2023-06-19'],
             image: '/doctors/doctor3.jpg',
-          },
-          {
-            id: 4,
-            name: 'Dr. Folake Adebayo',
-            specialty: 'Dermatology',
-            hospital: 'St. Nicholas Hospital',
-            rating: 4.6,
-            reviews: 76,
-            availableDates: ['2023-06-17', '2023-06-20'],
-            image: '/doctors/doctor4.jpg',
+            distance: userLocation ? '2.5 km away' : '10 km away',
+            coordinates: { lat: 6.5244, lng: 3.3792 },
+            acceptsVideo: false,
+            acceptsVoice: true,
+            acceptsText: true,
           },
         ]
 
@@ -105,11 +184,20 @@ const BookDoctor = () => {
           : mockDoctors
 
         // Filter by specialty if selected
-        const specialtyFilteredDoctors = specialty
-          ? filteredDoctors.filter((doctor) => doctor.specialty === specialty)
-          : filteredDoctors
+        const specialtyFilteredDoctors =
+          specialty && specialty !== 'all'
+            ? filteredDoctors.filter((doctor) => doctor.specialty === specialty)
+            : filteredDoctors
 
-        setDoctors(specialtyFilteredDoctors)
+        // Sort by distance if location is available
+        const sortedDoctors = userLocation
+          ? [...specialtyFilteredDoctors].sort((a, b) => {
+              // In a real app, you would calculate actual distance
+              return a.distance.localeCompare(b.distance)
+            })
+          : specialtyFilteredDoctors
+
+        setDoctors(sortedDoctors)
       } catch (error) {
         console.error('Error fetching doctors:', error)
       } finally {
@@ -118,7 +206,7 @@ const BookDoctor = () => {
     }
 
     fetchDoctors()
-  }, [specialty, searchQuery])
+  }, [specialty, searchQuery, userLocation])
 
   if (authLoading) return <div>Loading...</div>
   if (!user) return <Navigate to="/login" />
@@ -143,10 +231,28 @@ const BookDoctor = () => {
     { value: 'Ophthalmology', label: 'Ophthalmology' },
   ]
 
-  const handleBookAppointment = (doctorId) => {
-    navigate(`/book-doctor/${doctorId}`, {
-      state: { date, time },
-    })
+  const handleBookAppointment = (doctor) => {
+    setSelectedDoctor(doctor)
+  }
+
+  const confirmBooking = async () => {
+    setIsBooking(true)
+    try {
+      // In a real app, you would call your API here
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      setBookingSuccess(true)
+    } catch (error) {
+      console.error('Booking failed:', error)
+    } finally {
+      setIsBooking(false)
+    }
+  }
+
+  const closeBookingDialog = () => {
+    setSelectedDoctor(null)
+    setBookingSuccess(false)
+    setConsultationType('physical')
+    setNotes('')
   }
 
   return (
@@ -214,12 +320,49 @@ const BookDoctor = () => {
               />
             </div>
           </CardContent>
+          <CardFooter className="flex justify-between items-center p-4 border-t">
+            <div className="flex items-center gap-2">
+              {userLocation ? (
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Locate className="h-3 w-3 text-blue-500" />
+                  <span>Using your location</span>
+                </Badge>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={getUserLocation}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Navigation className="h-4 w-4 mr-2" />
+                  )}
+                  {locationError ? 'Location Error' : 'Use My Location'}
+                </Button>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSearchQuery('')
+                setSpecialty('all')
+                setDate('')
+                setTime('')
+              }}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Clear filters
+            </Button>
+          </CardFooter>
         </Card>
 
         {/* Doctors List */}
         {isLoading ? (
           <div className="flex justify-center py-8">
-            <p>Loading doctors...</p>
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : doctors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -257,6 +400,10 @@ const BookDoctor = () => {
                     <MapPin className="h-4 w-4 mr-2" />
                     <span>{doctor.hospital}</span>
                   </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Navigation className="h-4 w-4 mr-2" />
+                    <span>{doctor.distance}</span>
+                  </div>
                   <div className="flex flex-wrap gap-2 pt-2">
                     {doctor.availableDates.map((date) => (
                       <Badge
@@ -269,10 +416,39 @@ const BookDoctor = () => {
                       </Badge>
                     ))}
                   </div>
+                  <div className="pt-2 flex flex-wrap gap-2">
+                    {doctor.acceptsVideo && (
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        <Video className="h-3 w-3" />
+                        <span>Video</span>
+                      </Badge>
+                    )}
+                    {doctor.acceptsVoice && (
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        <Phone className="h-3 w-3" />
+                        <span>Voice</span>
+                      </Badge>
+                    )}
+                    {doctor.acceptsText && (
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        <MessageSquare className="h-3 w-3" />
+                        <span>Text</span>
+                      </Badge>
+                    )}
+                  </div>
                 </CardContent>
                 <CardFooter className="flex justify-end">
                   <Button
-                    onClick={() => handleBookAppointment(doctor.id)}
+                    onClick={() => handleBookAppointment(doctor)}
                     disabled={!date || !time}
                   >
                     Book Appointment
@@ -293,19 +469,184 @@ const BookDoctor = () => {
                   ? 'No doctors match your search criteria'
                   : 'No available doctors at the moment'}
               </p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => {
-                  setSearchQuery('')
-                  setSpecialty('')
-                }}
-              >
-                <X className="h-4 w-4 mr-2" />
-                Clear filters
-              </Button>
             </CardContent>
           </Card>
+        )}
+
+        {/* Booking Dialog */}
+        {selectedDoctor && (
+          <Dialog open={!!selectedDoctor} onOpenChange={closeBookingDialog}>
+            <DialogContent>
+              {!bookingSuccess ? (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Confirm Appointment</DialogTitle>
+                    <DialogDescription>
+                      Book an appointment with {selectedDoctor.name}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={selectedDoctor.image} />
+                        <AvatarFallback>
+                          {selectedDoctor.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h4 className="font-medium">{selectedDoctor.name}</h4>
+                        <p className="text-sm text-gray-600">
+                          {selectedDoctor.specialty}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-500" />
+                        <span>{date}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span>{time}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Consultation Type</Label>
+                      <RadioGroup
+                        value={consultationType}
+                        onValueChange={setConsultationType}
+                        className="grid grid-cols-2 gap-4 mt-2"
+                      >
+                        {consultationTypes
+                          .filter((type) => {
+                            if (type.id === 'video')
+                              return selectedDoctor.acceptsVideo
+                            if (type.id === 'voice')
+                              return selectedDoctor.acceptsVoice
+                            if (type.id === 'text')
+                              return selectedDoctor.acceptsText
+                            return true
+                          })
+                          .map((type) => (
+                            <div key={type.id}>
+                              <RadioGroupItem
+                                value={type.id}
+                                id={type.id}
+                                className="peer sr-only"
+                              />
+                              <Label
+                                htmlFor={type.id}
+                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {type.icon}
+                                  {type.label}
+                                </div>
+                              </Label>
+                            </div>
+                          ))}
+                      </RadioGroup>
+                    </div>
+                    <div>
+                      <Label htmlFor="notes">Additional Notes</Label>
+                      <Textarea
+                        id="notes"
+                        placeholder="Any symptoms or details you'd like to share..."
+                        className="mt-2"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={closeBookingDialog}>
+                      Cancel
+                    </Button>
+                    <Button onClick={confirmBooking} disabled={isBooking}>
+                      {isBooking ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        'Confirm Booking'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </>
+              ) : (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Appointment Confirmed!</DialogTitle>
+                    <DialogDescription>
+                      Your appointment with {selectedDoctor.name} has been
+                      booked.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={selectedDoctor.image} />
+                        <AvatarFallback>
+                          {selectedDoctor.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h4 className="font-medium">{selectedDoctor.name}</h4>
+                        <p className="text-sm text-gray-600">
+                          {selectedDoctor.specialty}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-500" />
+                        <span>{date}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span>{time}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {consultationType === 'physical' && (
+                        <>
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span>In-Person Visit</span>
+                        </>
+                      )}
+                      {consultationType === 'video' && (
+                        <>
+                          <Video className="h-4 w-4 text-gray-500" />
+                          <span>Video Consultation</span>
+                        </>
+                      )}
+                      {consultationType === 'voice' && (
+                        <>
+                          <Phone className="h-4 w-4 text-gray-500" />
+                          <span>Voice Call</span>
+                        </>
+                      )}
+                      {consultationType === 'text' && (
+                        <>
+                          <MessageSquare className="h-4 w-4 text-gray-500" />
+                          <span>Text Chat</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button asChild>
+                      <Link to="/appointments">View Appointments</Link>
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
         )}
 
         {/* Booking Assistance */}

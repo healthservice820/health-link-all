@@ -104,6 +104,7 @@ import RecentPatients from './pages/dashboard/customer-care/RecentPatients'
 import LocationServices from './pages/dashboard/customer-care/LocationServices'
 import ScrollToTop from './ScrollToTop'
 import CustomerDashboard from './pages/dashboard/CustomerDashboard'
+import BookLabTest from './pages/dashboard/BookLab'
 
 const queryClient = new QueryClient()
 
@@ -133,6 +134,7 @@ const App = () => (
             {/* Patient dashboard routes */}
             <Route path="/dashboard/patient" element={<CustomerDashboard />} />
             <Route path="/book-doctor" element={<BookDoctor />} />
+            <Route path="/book-lab" element={<BookLabTest />} />
 
             {/* Doctor dashboard routes */}
             <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
