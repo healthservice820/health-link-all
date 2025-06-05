@@ -9,9 +9,29 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card'
-import { Pill, Search, ShoppingCart, Plus, Minus, X } from 'lucide-react'
+import {
+  Pill,
+  Search,
+  ShoppingCart,
+  Plus,
+  Minus,
+  X,
+  FileText,
+  UploadCloud,
+  Loader2,
+  AlertCircle,
+  Check,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Layout from '@/components/layout/Layout'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 
 interface Medicine {
   id: string
@@ -22,6 +42,7 @@ interface Medicine {
   image?: string
   dosage: string
   manufacturer: string
+  requiresPrescription: boolean
 }
 
 interface CartItem extends Medicine {
@@ -35,6 +56,11 @@ const OrderMedicinePage = () => {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showCart, setShowCart] = useState(false)
+  const [prescriptionUploads, setPrescriptionUploads] = useState<
+    Record<string, File>
+  >({})
+  const [showPrescriptionDialog, setShowPrescriptionDialog] = useState(false)
+  const [currentMedicine, setCurrentMedicine] = useState<Medicine | null>(null)
 
   // Simulate fetching medicines from API
   useEffect(() => {
@@ -51,6 +77,7 @@ const OrderMedicinePage = () => {
             stock: 50,
             dosage: '500mg',
             manufacturer: 'Pfizer',
+            requiresPrescription: true,
           },
           {
             id: '2',
@@ -60,6 +87,7 @@ const OrderMedicinePage = () => {
             stock: 100,
             dosage: '200mg',
             manufacturer: 'Advil',
+            requiresPrescription: false,
           },
           {
             id: '3',
@@ -69,15 +97,17 @@ const OrderMedicinePage = () => {
             stock: 75,
             dosage: '500mg',
             manufacturer: 'Tylenol',
+            requiresPrescription: false,
           },
           {
             id: '4',
-            name: 'Loratadine',
-            description: 'Antihistamine for allergies',
-            price: 8.49,
-            stock: 30,
-            dosage: '10mg',
-            manufacturer: 'Claritin',
+            name: 'Codeine',
+            description: 'Pain reliever for moderate to severe pain',
+            price: 15.99,
+            stock: 20,
+            dosage: '30mg',
+            manufacturer: 'Generic',
+            requiresPrescription: true,
           },
         ]
         setMedicines(mockMedicines)
@@ -98,18 +128,22 @@ const OrderMedicinePage = () => {
   )
 
   const addToCart = (medicine: Medicine) => {
+    if (medicine.requiresPrescription && !prescriptionUploads[medicine.id]) {
+      setCurrentMedicine(medicine)
+      setShowPrescriptionDialog(true)
+      return
+    }
+
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === medicine.id)
 
       if (existingItem) {
-        // Increase quantity if already in cart
         return prevCart.map((item) =>
           item.id === medicine.id
             ? { ...item, quantity: item.quantity + 1 }
             : item,
         )
       } else {
-        // Add new item to cart
         return [...prevCart, { ...medicine, quantity: 1 }]
       }
     })
@@ -151,9 +185,113 @@ const OrderMedicinePage = () => {
     setShowCart(false)
   }
 
+  const PrescriptionDialog = () => {
+    const [file, setFile] = useState<File | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        setFile(e.target.files[0])
+      }
+    }
+
+    const handleUpload = () => {
+      if (!file || !currentMedicine) return
+
+      setIsUploading(true)
+      // Simulate upload process
+      setTimeout(() => {
+        setPrescriptionUploads((prev) => ({
+          ...prev,
+          [currentMedicine.id]: file,
+        }))
+        setIsUploading(false)
+        setShowPrescriptionDialog(false)
+        setFile(null)
+      }, 1500)
+    }
+
+    return (
+      <Dialog
+        open={showPrescriptionDialog}
+        onOpenChange={setShowPrescriptionDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Upload Prescription for {currentMedicine?.name}
+            </DialogTitle>
+            <DialogDescription>
+              This medication requires a valid doctor's prescription.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              {file ? (
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-500" />
+                    <span>{file.name}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setFile(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-600">
+                    Drag and drop your prescription here, or click to browse
+                  </p>
+                  <Input
+                    type="file"
+                    className="hidden"
+                    id="prescription-upload"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={handleFileChange}
+                  />
+                  <Label htmlFor="prescription-upload" className="mt-2">
+                    <Button variant="outline" asChild>
+                      <span>Select File</span>
+                    </Button>
+                  </Label>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowPrescriptionDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleUpload} disabled={!file || isUploading}>
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  'Upload Prescription'
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
+        <PrescriptionDialog />
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <h1 className="text-2xl font-bold">Order Medicine</h1>
           <div className="relative mt-4 md:mt-0 w-full md:w-auto">
@@ -229,14 +367,31 @@ const OrderMedicinePage = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    onClick={() => addToCart(medicine)}
-                    className="w-full"
-                    disabled={medicine.stock === 0}
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add to Cart
-                  </Button>
+                  <div className="w-full space-y-2">
+                    {medicine.requiresPrescription && (
+                      <div className="flex items-center gap-2 text-sm">
+                        {prescriptionUploads[medicine.id] ? (
+                          <span className="text-green-600 flex items-center gap-1">
+                            <Check className="h-4 w-4" />
+                            Prescription uploaded
+                          </span>
+                        ) : (
+                          <span className="text-red-600 flex items-center gap-1">
+                            <AlertCircle className="h-4 w-4" />
+                            Prescription required
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    <Button
+                      onClick={() => addToCart(medicine)}
+                      className="w-full"
+                      disabled={medicine.stock === 0}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add to Cart
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))}
@@ -297,6 +452,12 @@ const OrderMedicinePage = () => {
                               <p className="text-sm text-gray-600">
                                 ₦{item.price.toFixed(2)} each
                               </p>
+                              {item.requiresPrescription && (
+                                <p className="text-xs text-green-600 flex items-center gap-1">
+                                  <Check className="h-3 w-3" />
+                                  Prescription verified
+                                </p>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
