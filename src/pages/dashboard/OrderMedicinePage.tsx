@@ -21,6 +21,7 @@ import {
   Loader2,
   AlertCircle,
   Check,
+  Upload,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Layout from '@/components/layout/Layout'
@@ -32,6 +33,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import { useRef } from 'react'
 
 interface Medicine {
   id: string
@@ -188,6 +190,8 @@ const OrderMedicinePage = () => {
   const PrescriptionDialog = () => {
     const [file, setFile] = useState<File | null>(null)
     const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(true)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
@@ -195,26 +199,30 @@ const OrderMedicinePage = () => {
       }
     }
 
+    const triggerFileInput = () => {
+      fileInputRef.current?.click()
+    }
+
     const handleUpload = () => {
       if (!file || !currentMedicine) return
 
       setIsUploading(true)
-      // Simulate upload process
       setTimeout(() => {
         setPrescriptionUploads((prev) => ({
           ...prev,
           [currentMedicine.id]: file,
         }))
         setIsUploading(false)
-        setShowPrescriptionDialog(false)
+        setPrescriptionDialogOpen(false)
         setFile(null)
+        addToCart(currentMedicine)
       }, 1500)
     }
 
     return (
       <Dialog
-        open={showPrescriptionDialog}
-        onOpenChange={setShowPrescriptionDialog}
+        open={prescriptionDialogOpen}
+        onOpenChange={setPrescriptionDialogOpen}
       >
         <DialogContent>
           <DialogHeader>
@@ -227,17 +235,23 @@ const OrderMedicinePage = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <div
+              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer"
+              onClick={triggerFileInput}
+            >
               {file ? (
                 <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
                   <div className="flex items-center gap-2">
                     <FileText className="h-5 w-5 text-blue-500" />
-                    <span>{file.name}</span>
+                    <span className="truncate max-w-xs">{file.name}</span>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setFile(null)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setFile(null)
+                    }}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -246,41 +260,51 @@ const OrderMedicinePage = () => {
                 <>
                   <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
                   <p className="mt-2 text-sm text-gray-600">
-                    Drag and drop your prescription here, or click to browse
+                    Tap to select a prescription file
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    (PDF, JPG, PNG formats accepted)
                   </p>
                   <Input
                     type="file"
                     className="hidden"
                     id="prescription-upload"
+                    ref={fileInputRef}
                     accept=".pdf,.jpg,.jpeg,.png,image/*"
                     onChange={handleFileChange}
                   />
-                  <Label htmlFor="prescription-upload" className="mt-2">
-                    <Button variant="outline" asChild>
-                      <span>Select File</span>
-                    </Button>
-                  </Label>
                 </>
               )}
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col gap-3">
               <Button
                 variant="outline"
-                onClick={() => setShowPrescriptionDialog(false)}
+                onClick={triggerFileInput}
+                className="w-full"
               >
-                Cancel
+                <Upload className="mr-2 h-4 w-4" />
+                {file ? 'Change File' : 'Select File'}
               </Button>
-              <Button onClick={handleUpload} disabled={!file || isUploading}>
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  'Upload Prescription'
-                )}
-              </Button>
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPrescriptionDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleUpload} disabled={!file || isUploading}>
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    'Upload Prescription'
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
