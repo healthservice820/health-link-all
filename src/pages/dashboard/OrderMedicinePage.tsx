@@ -201,7 +201,7 @@ const OrderMedicinePage = () => {
                   <div className="flex justify-between items-start">
                     <CardTitle>{medicine.name}</CardTitle>
                     <span className="text-sm font-medium text-green-600">
-                      ${medicine.price.toFixed(2)}
+                      ₦{medicine.price.toFixed(2)}
                     </span>
                   </div>
                 </CardHeader>
@@ -295,7 +295,7 @@ const OrderMedicinePage = () => {
                             <div>
                               <p className="font-medium">{item.name}</p>
                               <p className="text-sm text-gray-600">
-                                ${item.price.toFixed(2)} each
+                                ₦{item.price.toFixed(2)} each
                               </p>
                             </div>
                           </div>
@@ -340,17 +340,17 @@ const OrderMedicinePage = () => {
                     <div className="border-t pt-4 space-y-2">
                       <div className="flex justify-between">
                         <span>Subtotal:</span>
-                        <span>${subtotal.toFixed(2)}</span>
+                        <span>₦{subtotal.toFixed(2)}</span>
                       </div>
                       {discount > 0 && (
                         <div className="flex justify-between text-green-600">
                           <span>Discount ({profile?.health_plan} plan):</span>
-                          <span>-${discount.toFixed(2)}</span>
+                          <span>-₦{discount.toFixed(2)}</span>
                         </div>
                       )}
                       <div className="flex justify-between font-bold text-lg">
                         <span>Total:</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>₦{total.toFixed(2)}</span>
                       </div>
 
                       <Button
