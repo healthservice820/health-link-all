@@ -10,9 +10,12 @@ import { Button } from '@/components/ui/button'
 import {
   Syringe,
   ClipboardList,
+  Check,
+  Calendar,
   MapPin,
   Search,
   Frown,
+  Clock,
   ChevronRight,
   Filter,
   Plus,
@@ -29,6 +32,14 @@ import {
   TooltipContent,
 } from '@/components/ui/tooltip'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 interface LabTest {
   id: number
@@ -49,6 +60,9 @@ interface DiagnosticCenter {
 }
 
 const BookLabTest = () => {
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false)
+  const [bookingDate, setBookingDate] = useState('')
+  const [bookingTime, setBookingTime] = useState('')
   const { user, profile, isLoading: authLoading } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -215,6 +229,36 @@ const BookLabTest = () => {
         return [...prev, test]
       }
     })
+  }
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  const handleConfirmBooking = () => {
+    if (!bookingDate || !bookingTime) {
+      alert('Please select both date and time for your booking')
+      return
+    }
+    setIsConfirmationOpen(true)
+  }
+
+  const completeBooking = () => {
+    // In a real app, you would send this data to your API
+    console.log('Booking confirmed:', {
+      center: diagnosticCenters[0],
+      tests: selectedTests,
+      date: bookingDate,
+      time: bookingTime,
+    })
+
+    // Show success and navigate away
+    alert('Your lab test has been booked successfully!')
+    navigate('/lab-results')
   }
 
   const handleProceedToBooking = (centerId) => {
@@ -411,7 +455,6 @@ const BookLabTest = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* For demo, we'll show tests from the first center */}
                   {diagnosticCenters[0]?.tests.map((test) => (
                     <div
                       key={test.id}
@@ -435,7 +478,9 @@ const BookLabTest = () => {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">${test.price}</p>
+                          <p className="font-medium">
+                            {formatCurrency(test.price)}
+                          </p>
                           {selectedTests.some((t) => t.id === test.id) ? (
                             <p className="text-xs text-blue-600">Selected</p>
                           ) : (
@@ -457,8 +502,13 @@ const BookLabTest = () => {
                   </p>
                   {selectedTests.length > 0 && (
                     <p className="font-medium">
-                      Total: $
-                      {selectedTests.reduce((sum, test) => sum + test.price, 0)}
+                      Total:{' '}
+                      {formatCurrency(
+                        selectedTests.reduce(
+                          (sum, test) => sum + test.price,
+                          0,
+                        ),
+                      )}
                     </p>
                   )}
                 </div>
@@ -475,6 +525,7 @@ const BookLabTest = () => {
 
         {currentStep === 3 && (
           <div className="space-y-6">
+            {/* Back button */}
             <Button
               variant="outline"
               onClick={() => setCurrentStep(2)}
@@ -496,6 +547,10 @@ const BookLabTest = () => {
                     <p className="text-sm text-gray-600">
                       {diagnosticCenters[0]?.address}
                     </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      <MapPin className="inline h-4 w-4 mr-1" />
+                      {diagnosticCenters[0]?.distance} away
+                    </p>
                   </div>
                 </div>
 
@@ -510,16 +565,19 @@ const BookLabTest = () => {
                             {test.duration}
                           </p>
                         </div>
-                        <p className="font-medium">${test.price}</p>
+                        <p className="font-medium">
+                          {formatCurrency(test.price)}
+                        </p>
                       </div>
                     ))}
                     <div className="p-4 bg-gray-50 flex justify-between font-medium">
                       <span>Total</span>
                       <span>
-                        $
-                        {selectedTests.reduce(
-                          (sum, test) => sum + test.price,
-                          0,
+                        {formatCurrency(
+                          selectedTests.reduce(
+                            (sum, test) => sum + test.price,
+                            0,
+                          ),
                         )}
                       </span>
                     </div>
@@ -531,18 +589,26 @@ const BookLabTest = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <Calendar className="inline h-4 w-4 mr-1" />
                         Date
                       </label>
                       <Input
                         type="date"
                         min={new Date().toISOString().split('T')[0]}
+                        value={bookingDate}
+                        onChange={(e) => setBookingDate(e.target.value)}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <Clock className="inline h-4 w-4 mr-1" />
                         Time
                       </label>
-                      <Input type="time" />
+                      <Input
+                        type="time"
+                        value={bookingTime}
+                        onChange={(e) => setBookingTime(e.target.value)}
+                      />
                     </div>
                   </div>
                 </div>
@@ -551,17 +617,76 @@ const BookLabTest = () => {
                 <Button variant="outline" onClick={() => setCurrentStep(2)}>
                   Back
                 </Button>
-                <Button
-                  onClick={() =>
-                    handleProceedToBooking(diagnosticCenters[0]?.id)
-                  }
-                >
-                  Confirm Booking
-                </Button>
+                <Button onClick={handleConfirmBooking}>Confirm Booking</Button>
               </CardFooter>
             </Card>
           </div>
         )}
+
+        {/* Confirmation Dialog */}
+        <Dialog open={isConfirmationOpen} onOpenChange={setIsConfirmationOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Check className="h-5 w-5 text-green-500" />
+                Confirm Lab Test Booking
+              </DialogTitle>
+              <DialogDescription>
+                Please review your booking details before confirmation
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium">Diagnostic Center</h4>
+                <p className="text-sm">{diagnosticCenters[0]?.name}</p>
+                <p className="text-sm text-gray-600">
+                  {diagnosticCenters[0]?.address}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-medium">Tests</h4>
+                <ul className="list-disc list-inside text-sm space-y-1">
+                  {selectedTests.map((test) => (
+                    <li key={test.id}>
+                      {test.name} - {formatCurrency(test.price)}
+                    </li>
+                  ))}
+                </ul>
+                <p className="font-medium mt-2">
+                  Total:{' '}
+                  {formatCurrency(
+                    selectedTests.reduce((sum, test) => sum + test.price, 0),
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-medium">Appointment Time</h4>
+                <p className="text-sm">
+                  {new Date(bookingDate).toLocaleDateString('en-NG', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+                <p className="text-sm">{bookingTime}</p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsConfirmationOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={completeBooking}>Confirm & Pay</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   )

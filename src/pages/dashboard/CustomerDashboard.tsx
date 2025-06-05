@@ -36,6 +36,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { Tooltip } from '@/components/ui/tooltip'
 import { TooltipContent } from '@/components/ui/tooltip'
 import { TooltipTrigger } from '@/components/ui/tooltip'
+import { AppointmentDetailsDialog } from './AppointmentDetailsDialog'
 
 const CustomerDashboard = () => {
   const { user, profile, isLoading: authLoading } = useAuth()
@@ -114,15 +115,18 @@ const CustomerDashboard = () => {
       { icon: <Bell size={20} />, name: 'Health Tips' },
     ],
     classic: [
+      { icon: <HeartPulse size={20} />, name: 'AI Symptom Checker' },
       { icon: <Stethoscope size={20} />, name: '5 Doctor Consultations' },
       { icon: <Pill size={20} />, name: '10% Medicine Discount' },
     ],
     premium: [
+      { icon: <HeartPulse size={20} />, name: 'AI Symptom Checker' },
       { icon: <Stethoscope size={20} />, name: '15 Doctor Consultations' },
       { icon: <Ambulance size={20} />, name: 'Basic Ambulance Coverage' },
       { icon: <Activity size={20} />, name: 'Health Analytics' },
     ],
     executive: [
+      { icon: <HeartPulse size={20} />, name: 'AI Symptom Checker' },
       { icon: <Stethoscope size={20} />, name: 'Unlimited Consultations' },
       { icon: <Ambulance size={20} />, name: 'Priority Ambulance' },
       { icon: <Star size={20} />, name: 'Executive Concierge' },
@@ -209,8 +213,15 @@ const CustomerDashboard = () => {
         {activeTab === 'overview' && (
           <>
             {/* Quick Actions - Modern Tile Design */}
-            {/* Quick Actions - Modern Tile Design */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {/* Symptom Checker is always available */}
+              <DashboardButton
+                icon={<HeartPulse className="h-6 w-6 text-blue-600" />}
+                label="AI Symptom Checker"
+                href="/symptoms"
+                className="bg-white hover:bg-blue-50 border border-gray-200"
+              />
+
               {userPlan !== 'basic' ? (
                 <>
                   <DashboardButton
@@ -251,12 +262,6 @@ const CustomerDashboard = () => {
               ) : (
                 <>
                   <DashboardButton
-                    icon={<HeartPulse className="h-6 w-6 text-blue-600" />}
-                    label="AI Symptom Checker"
-                    href="/symptom-checker"
-                    className="bg-white hover:bg-blue-50 border border-gray-200"
-                  />
-                  <DashboardButton
                     icon={<Bell className="h-6 w-6 text-purple-600" />}
                     label="Health Tips"
                     href="/health-tips"
@@ -274,8 +279,6 @@ const CustomerDashboard = () => {
                 </>
               )}
             </div>
-
-            {/* Upcoming Appointments */}
             {/* Upcoming Appointments */}
             <Card>
               <CardHeader>
@@ -357,16 +360,15 @@ const CustomerDashboard = () => {
                           >
                             Cancel
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-blue-300 hover:bg-blue-50"
-                            asChild
-                          >
-                            <Link to={`/appointments/${appointment.id}`}>
+                          <AppointmentDetailsDialog appointment={appointment}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-blue-300 hover:bg-blue-50"
+                            >
                               Details
-                            </Link>
-                          </Button>
+                            </Button>
+                          </AppointmentDetailsDialog>
                         </div>
                       </div>
                     ))}
