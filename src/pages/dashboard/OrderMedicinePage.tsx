@@ -252,7 +252,7 @@ const OrderMedicinePage = () => {
                     type="file"
                     className="hidden"
                     id="prescription-upload"
-                    accept=".pdf,.jpg,.jpeg,.png"
+                    accept=".pdf,.jpg,.jpeg,.png,image/*"
                     onChange={handleFileChange}
                   />
                   <Label htmlFor="prescription-upload" className="mt-2">
