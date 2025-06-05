@@ -191,7 +191,7 @@ const OrderMedicinePage = () => {
     const [file, setFile] = useState<File | null>(null)
     const [isUploading, setIsUploading] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(true)
+    const [prescriptionDialogOpen, setPrescriptionDialogOpen] = useState(false)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
