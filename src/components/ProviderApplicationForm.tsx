@@ -38,7 +38,7 @@ const professionalInfoSchema = z.object({
 
 const documentSchema = z.object({
   license_document: z.instanceof(File).refine(
-    file => file.size <= 5 * 1024 * 1024, 
+    file => file.size <= 5 * 1024 * 1024,
     "File size must be less than 5MB"
   ),
   additional_documents: z.instanceof(File).array().optional(),
@@ -56,6 +56,7 @@ const ProviderApplicationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [emailError, setEmailError] = useState("");
   const { user } = useAuth();
 
   const form = useForm<FormValues>({
@@ -78,10 +79,67 @@ const ProviderApplicationForm = () => {
 
   const providerType = form.watch('provider_type');
 
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      console.log('Checking if email exists:', email);
+      const lowerEmail = email.toLowerCase();
+
+      // Use the secure RPC function to check existence
+      // Calls the check_email_exists function created in Supabase
+      const { data, error } = await supabase.rpc('check_email_exists', {
+        email_text: lowerEmail
+      });
+
+      if (error) {
+        console.error("Error calling check_email_exists RPC:", error);
+        return false; // Graceful fallback - don't block user
+      }
+
+      console.log('Email existence check result:', data);
+      return !!data;
+    } catch (error) {
+      console.error("Error checking email:", error);
+      return false; // Graceful fallback
+    }
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailBlur = async () => {
+    const email = form.watch('email').trim();
+
+    if (!email) {
+      setEmailError("");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    const exists = await checkEmailExists(email);
+    if (exists) {
+      setEmailError("This email is already registered. Please use a different email or try logging in.");
+      toast.error("Email already registered");
+    } else {
+      setEmailError("");
+    }
+  };
+
   const nextStep = async () => {
     let isValid = false;
-    
+
     if (currentStep === 1) {
+      // Check email error before allowing to proceed
+      if (emailError) {
+        toast.error("Please fix the email error before proceeding");
+        return;
+      }
+
       isValid = await form.trigger([
         'provider_type',
         'contact_person',
@@ -100,7 +158,7 @@ const ProviderApplicationForm = () => {
         isValid = isValid && await form.trigger(['coverage_area']);
       }
     }
-    
+
     if (isValid) {
       setCurrentStep(currentStep + 1);
     }
@@ -111,77 +169,77 @@ const ProviderApplicationForm = () => {
   };
 
   const uploadFile = async (file: File, path: string) => {
-  const { data, error } = await supabase.storage
-    .from('providers-documents')
-    .upload(path, file, {
-      cacheControl: '3600',
-      upsert: false,
-      contentType: file.type,
-    });
-
-  if (error) throw error;
-  return data.path;
-};
- //Submit form
- const onSubmit = async (values: FormValues) => {
-  try {
-    setIsSubmitting(true);
-
-    // Upload license document
-    setUploadProgress(20);
-    const licenseDocPath = await uploadFile(
-      values.license_document,
-      `applications/${values.email}/license`
-    );
-
-    // Upload additional documents if any
-    let additionalDocPaths: string[] = [];
-    if (values.additional_documents && values.additional_documents.length > 0) {
-      setUploadProgress(40);
-      additionalDocPaths = await Promise.all(
-        values.additional_documents.map(file => 
-          uploadFile(file, `applications/${values.email}/additional`)
-        )
-      );
-    }
-
-    setUploadProgress(60);
-
-    // Submit application to database
-    const { error } = await supabase
-      .from('provider_applications')
-      .insert([{
-        provider_type: values.provider_type,
-        organization_name: values.organization_name,
-        contact_person: values.contact_person,
-        email: values.email,
-        phone: values.phone,
-        address: values.address,
-        license_number: values.license_number,
-        license_document_url: licenseDocPath,
-        other_documents_urls: additionalDocPaths,
-        status: 'pending',
-        ...(providerType === 'doctor' && { specialization: values.specialization }),
-        ...(providerType === 'diagnostic' && { 
-          services_offered: values.services_offered?.split(',') 
-        }),
-        ...(providerType === 'ambulance' && { coverage_area: values.coverage_area }),
-      }]);
+    const { data, error } = await supabase.storage
+      .from('providers-documents')
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type,
+      });
 
     if (error) throw error;
+    return data.path;
+  };
+  //Submit form
+  const onSubmit = async (values: FormValues) => {
+    try {
+      setIsSubmitting(true);
 
-    setUploadProgress(100);
-    setIsSuccess(true);
-    toast.success('Application submitted successfully!');
+      // Upload license document
+      setUploadProgress(20);
+      const licenseDocPath = await uploadFile(
+        values.license_document,
+        `applications/${values.email}/license`
+      );
 
-  } catch (error) {
-    console.error("Submission error:", error);
-    toast.error('Error submitting application. Please try again.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-  
+      // Upload additional documents if any
+      let additionalDocPaths: string[] = [];
+      if (values.additional_documents && values.additional_documents.length > 0) {
+        setUploadProgress(40);
+        additionalDocPaths = await Promise.all(
+          values.additional_documents.map(file =>
+            uploadFile(file, `applications/${values.email}/additional`)
+          )
+        );
+      }
+
+      setUploadProgress(60);
+
+      // Submit application to database
+      const { error } = await supabase
+        .from('provider_applications')
+        .insert([{
+          provider_type: values.provider_type,
+          organization_name: values.organization_name,
+          contact_person: values.contact_person,
+          email: values.email,
+          phone: values.phone,
+          address: values.address,
+          license_number: values.license_number,
+          license_document_url: licenseDocPath,
+          other_documents_urls: additionalDocPaths,
+          status: 'pending',
+          ...(providerType === 'doctor' && { specialization: values.specialization }),
+          ...(providerType === 'diagnostic' && {
+            services_offered: values.services_offered?.split(',')
+          }),
+          ...(providerType === 'ambulance' && { coverage_area: values.coverage_area }),
+        }]);
+
+      if (error) throw error;
+
+      setUploadProgress(100);
+      setIsSuccess(true);
+      toast.success('Application submitted successfully!');
+
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast.error('Error submitting application. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // if (user) {
   //   return <Navigate to="/" />;
   // }
@@ -205,7 +263,7 @@ const ProviderApplicationForm = () => {
             <CardContent className="flex flex-col items-center text-center space-y-4">
               <CheckCircle2 className="h-12 w-12 text-green-500" />
               <p>Thank you for applying. We'll review your application and contact you soon.</p>
-              <Button 
+              <Button
                 onClick={() => {
                   setIsSuccess(false);
                   setCurrentStep(1);
@@ -250,7 +308,7 @@ const ProviderApplicationForm = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Provider Type</Label>
-                    <RadioGroup 
+                    <RadioGroup
                       onValueChange={(value) => form.setValue('provider_type', value as any)}
                       value={form.watch('provider_type')}
                       className="grid grid-cols-2 gap-2"
@@ -290,9 +348,9 @@ const ProviderApplicationForm = () => {
                   {providerType && providerType !== 'doctor' && (
                     <div className="space-y-2">
                       <Label>
-                        {providerType === 'pharmacy' ? 'Pharmacy Name' : 
-                         providerType === 'diagnostic' ? 'Diagnostic Center Name' : 
-                         'Ambulance Service Name'}
+                        {providerType === 'pharmacy' ? 'Pharmacy Name' :
+                          providerType === 'diagnostic' ? 'Diagnostic Center Name' :
+                            'Ambulance Service Name'}
                       </Label>
                       <Input
                         placeholder={`Enter ${providerType} name`}
@@ -320,8 +378,20 @@ const ProviderApplicationForm = () => {
                       <Input
                         placeholder="Your professional email"
                         {...form.register('email')}
+                        onBlur={handleEmailBlur}
+                        onChange={() => {
+                          if (emailError) {
+                            setEmailError("");
+                          }
+                        }}
+                        className={emailError ? 'border-red-500' : ''}
                       />
-                      {form.formState.errors.email && (
+                      {emailError && (
+                        <p className="text-sm text-red-500">
+                          {emailError}
+                        </p>
+                      )}
+                      {!emailError && form.formState.errors.email && (
                         <p className="text-sm text-red-500">
                           {form.formState.errors.email.message}
                         </p>
@@ -429,7 +499,7 @@ const ProviderApplicationForm = () => {
                           type="file"
                           className="hidden"
                           accept=".pdf,.doc,.docx"
-                          onChange={(e) => 
+                          onChange={(e) =>
                             form.setValue('license_document', e.target.files?.[0] as File)
                           }
                         />
@@ -449,8 +519,8 @@ const ProviderApplicationForm = () => {
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                           <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
                           <p className="text-sm text-gray-500">
-                            {form.watch('additional_documents')?.length 
-                              ? `${form.watch('additional_documents')?.length} file(s) selected` 
+                            {form.watch('additional_documents')?.length
+                              ? `${form.watch('additional_documents')?.length} file(s) selected`
                               : 'Upload any additional supporting documents'}
                           </p>
                         </div>
@@ -459,7 +529,7 @@ const ProviderApplicationForm = () => {
                           className="hidden"
                           multiple
                           accept=".pdf,.doc,.docx,.jpg,.png"
-                          onChange={(e) => 
+                          onChange={(e) =>
                             form.setValue('additional_documents', Array.from(e.target.files || []))
                           }
                         />
@@ -487,14 +557,14 @@ const ProviderApplicationForm = () => {
             ) : (
               <div></div>
             )}
-            
+
             {currentStep < 4 ? (
               <Button onClick={nextStep} disabled={isSubmitting}>
                 Next <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button 
-                onClick={form.handleSubmit(onSubmit)} 
+              <Button
+                onClick={form.handleSubmit(onSubmit)}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

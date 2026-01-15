@@ -10,6 +10,7 @@ import Layout from "@/components/layout/Layout";
 import { toast } from "sonner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { usePaystackPayment } from 'react-paystack';
+import { supabase } from "@/integrations/supabase/client";
 
 type PaymentSource = "self" | "insurance" | "government" | "donor" | "privateOrg";
 type HealthPlan = "basic" | "classic" | "premium" | "executive";
@@ -47,7 +48,7 @@ const SignUpWithPlan = () => {
   const selectedPlan = (location.state?.plan as HealthPlan) || "basic";
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -63,6 +64,8 @@ const SignUpWithPlan = () => {
       amount: selectedPlan === "classic" ? 150000 : selectedPlan === "premium" ? 300000 : 1000000,
     }
   });
+
+  const [emailError, setEmailError] = useState("");
 
   const config = useMemo<PaystackConfig>(() => ({
     reference: (new Date()).getTime().toString(),
@@ -85,6 +88,61 @@ const SignUpWithPlan = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value
     }));
+    // Clear email error when user starts typing
+    if (name === "email" && emailError) {
+      setEmailError("");
+    }
+  };
+
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      console.log('Checking if email exists:', email);
+      const lowerEmail = email.toLowerCase();
+
+      // Use the secure RPC function to check existence
+      // Calls the check_email_exists function created in Supabase
+      const { data, error } = await supabase.rpc('check_email_exists', {
+        email_text: lowerEmail
+      });
+
+      if (error) {
+        console.error("Error calling check_email_exists RPC:", error);
+        return false; // Graceful fallback - don't block user
+      }
+
+      console.log('Email existence check result:', data);
+      return !!data;
+    } catch (error) {
+      console.error("Error checking email:", error);
+      return false; // Graceful fallback
+    }
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailBlur = async () => {
+    const email = formData.email.trim();
+
+    if (!email) {
+      setEmailError("");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    const exists = await checkEmailExists(email);
+    if (exists) {
+      setEmailError("This email is already registered. Please use a different email or try logging in.");
+      toast.error("Email already registered");
+    } else {
+      setEmailError("");
+    }
   };
 
   const handleCardDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +194,7 @@ const SignUpWithPlan = () => {
     });
 
     await signUp(
-      formData.email, 
+      formData.email,
       formData.password,
       {
         fullName: formData.fullName,
@@ -152,17 +210,24 @@ const SignUpWithPlan = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
+    // Validate email before submission
+    if (emailError) {
+      toast.error("Please fix email validation errors before submitting");
+      setIsLoading(false);
+      return;
+    }
+
     if (!formData.agreeToTerms) {
       toast.error("You must agree to the terms and conditions");
       setIsLoading(false);
       return;
     }
-  
+
     if (formData.paymentSource === "self" && formData.selectedPlan !== "basic") {
       setPaymentInitiated(true);
       const paymentEmail = formData.cardDetails.email || formData.email;
-      
+
       try {
         // This is now properly typed
         await initializePayment({
@@ -186,7 +251,7 @@ const SignUpWithPlan = () => {
     setIsLoading(false);
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep === 1 && !formData.fullName) {
       toast.error("Please enter your full name");
       return;
@@ -199,6 +264,25 @@ const SignUpWithPlan = () => {
       toast.error("Please enter your phone number");
       return;
     }
+
+    // Validate email on step 1 before proceeding
+    if (currentStep === 1) {
+      const email = formData.email.trim();
+
+      if (!validateEmail(email)) {
+        setEmailError("Please enter a valid email address");
+        toast.error("Please enter a valid email address");
+        return;
+      }
+
+      const exists = await checkEmailExists(email);
+      if (exists) {
+        setEmailError("This email is already registered. Please use a different email or try logging in.");
+        toast.error("Email already registered");
+        return;
+      }
+    }
+
     if (currentStep === 2 && !formData.password) {
       toast.error("Please enter a password");
       return;
@@ -242,37 +326,40 @@ const SignUpWithPlan = () => {
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
-                    <Input 
-                      id="fullName" 
+                    <Input
+                      id="fullName"
                       name="fullName"
-                      type="text" 
-                      placeholder="John Doe" 
+                      type="text"
+                      placeholder="John Doe"
                       value={formData.fullName}
                       onChange={handleChange}
                       required
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
+                    <Input
+                      id="email"
                       name="email"
-                      type="email" 
-                      placeholder="name@example.com" 
+                      type="email"
+                      placeholder="name@example.com"
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={handleEmailBlur}
                       required
+                      className={emailError ? "border-red-500" : ""}
                     />
+                    {emailError && <p className="text-sm text-red-500">{emailError}</p>}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="phoneNumber">Phone Number</Label>
-                    <Input 
-                      id="phoneNumber" 
+                    <Input
+                      id="phoneNumber"
                       name="phoneNumber"
-                      type="tel" 
-                      placeholder="+2348012345678" 
+                      type="tel"
+                      placeholder="+2348012345678"
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       required
@@ -286,8 +373,8 @@ const SignUpWithPlan = () => {
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input 
-                      id="password" 
+                    <Input
+                      id="password"
                       name="password"
                       type="password"
                       value={formData.password}
@@ -296,7 +383,7 @@ const SignUpWithPlan = () => {
                       minLength={8}
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label>Selected Health Plan</Label>
                     <div className="flex items-center gap-2 p-2 border rounded-md">
@@ -315,8 +402,8 @@ const SignUpWithPlan = () => {
                 <>
                   <div className="space-y-2">
                     <Label>Who will be paying for your plan?</Label>
-                    <RadioGroup 
-                      defaultValue="self" 
+                    <RadioGroup
+                      defaultValue="self"
                       className="grid grid-cols-2 gap-2"
                       value={formData.paymentSource}
                       onValueChange={(value) => handleSelectChange("paymentSource", value as PaymentSource)}
@@ -361,19 +448,19 @@ const SignUpWithPlan = () => {
                       </Label>
                       <div className="space-y-2">
                         <Label htmlFor="cardEmail">Email for Payment Receipt (optional)</Label>
-                        <Input 
-                          id="cardEmail" 
+                        <Input
+                          id="cardEmail"
                           name="email"
-                          type="email" 
-                          placeholder="Leave empty to use main email" 
+                          type="email"
+                          placeholder="Leave empty to use main email"
                           value={formData.cardDetails.email}
                           onChange={handleCardDetailsChange}
                         />
                       </div>
                       <p className="text-sm text-gray-500">
                         You'll be redirected to Paystack to complete your payment of {' '}
-                        {formData.selectedPlan === "classic" ? '₦1,500' : 
-                         formData.selectedPlan === "premium" ? '₦3,000' : '₦10,000'}
+                        {formData.selectedPlan === "classic" ? '₦1,500' :
+                          formData.selectedPlan === "premium" ? '₦3,000' : '₦10,000'}
                       </p>
                     </div>
                   )}
@@ -394,16 +481,16 @@ const SignUpWithPlan = () => {
                           {formData.paymentSource === "donor" && "Donor Organization Name"}
                           {formData.paymentSource === "privateOrg" && "Private Organization Name"}
                         </Label>
-                        <Input 
-                          id="organizationName" 
+                        <Input
+                          id="organizationName"
                           name="organizationName"
-                          type="text" 
+                          type="text"
                           placeholder={
                             formData.paymentSource === "insurance" ? "e.g. AXA Mansard" :
-                            formData.paymentSource === "government" ? "e.g. NHIS" :
-                            formData.paymentSource === "donor" ? "e.g. UNICEF" :
-                            "e.g. Acme Corp"
-                          } 
+                              formData.paymentSource === "government" ? "e.g. NHIS" :
+                                formData.paymentSource === "donor" ? "e.g. UNICEF" :
+                                  "e.g. Acme Corp"
+                          }
                           value={formData.organizationName}
                           onChange={handleChange}
                           required
@@ -416,11 +503,11 @@ const SignUpWithPlan = () => {
                           {formData.paymentSource === "donor" && "Donor ID"}
                           {formData.paymentSource === "privateOrg" && "Employee/Member ID"}
                         </Label>
-                        <Input 
-                          id="userId" 
+                        <Input
+                          id="userId"
                           name="userId"
-                          type="text" 
-                          placeholder="Your identification number" 
+                          type="text"
+                          placeholder="Your identification number"
                           value={formData.userId}
                           onChange={handleChange}
                           required
@@ -439,9 +526,9 @@ const SignUpWithPlan = () => {
                     <div className="space-y-2">
                       <p><span className="font-semibold">Plan:</span> {formData.selectedPlan.charAt(0).toUpperCase() + formData.selectedPlan.slice(1)}</p>
                       <p><span className="font-semibold">Payment Method:</span> {formData.paymentSource === "self" ? "Self Payment" : formData.organizationName}</p>
-                      <p><span className="font-semibold">Amount:</span> {formData.selectedPlan === "basic" ? "FREE" : 
+                      <p><span className="font-semibold">Amount:</span> {formData.selectedPlan === "basic" ? "FREE" :
                         formData.selectedPlan === "classic" ? "₦1,500/month" :
-                        formData.selectedPlan === "premium" ? "₦3,000/month" : "₦10,000/month"}</p>
+                          formData.selectedPlan === "premium" ? "₦3,000/month" : "₦10,000/month"}</p>
                     </div>
 
                     <div className="flex items-center space-x-2 mt-4">
@@ -469,7 +556,7 @@ const SignUpWithPlan = () => {
               ) : (
                 <div></div>
               )}
-              
+
               {currentStep < 4 ? (
                 <Button onClick={nextStep} disabled={isLoading}>
                   Next <ArrowRight className="h-4 w-4 ml-2" />

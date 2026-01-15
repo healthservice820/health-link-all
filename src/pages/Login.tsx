@@ -9,17 +9,76 @@ import { Heart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/Layout";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const { signIn, user } = useAuth();
+
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      console.log('Checking if email exists:', email);
+      const lowerEmail = email.toLowerCase();
+
+      // Use the secure RPC function to check existence
+      // Calls the check_email_exists function created in Supabase
+      const { data, error } = await supabase.rpc('check_email_exists', {
+        email_text: lowerEmail
+      });
+
+      if (error) {
+        console.error("Error calling check_email_exists RPC:", error);
+        return false; // Graceful fallback - don't block user
+      }
+
+      console.log('Email existence check result:', data);
+      return !!data;
+    } catch (error) {
+      console.error("Error checking email:", error);
+      return false; // Graceful fallback
+    }
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailBlur = async () => {
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setEmailError("");
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    const exists = await checkEmailExists(trimmedEmail);
+    if (!exists) {
+      setEmailError("This email is not registered. Please sign up first.");
+    } else {
+      setEmailError("");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
+    // Validate email before submission
+    if (emailError) {
+      toast.error("Please fix email validation errors before submitting");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await signIn(email, password);
       // Success toast is handled in the AuthContext
@@ -63,14 +122,22 @@ const Login = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com" 
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) {
+                      setEmailError("");
+                    }
+                  }}
+                  onBlur={handleEmailBlur}
                   required
+                  className={emailError ? "border-red-500" : ""}
                 />
+                {emailError && <p className="text-sm text-red-500">{emailError}</p>}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -79,8 +146,8 @@ const Login = () => {
                     Forgot password?
                   </Link>
                 </div>
-                <Input 
-                  id="password" 
+                <Input
+                  id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -89,8 +156,8 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button 
-                className="w-full bg-healthcare-primary hover:bg-healthcare-accent" 
+              <Button
+                className="w-full bg-healthcare-primary hover:bg-healthcare-accent"
                 type="submit"
                 disabled={isLoading}
               >
