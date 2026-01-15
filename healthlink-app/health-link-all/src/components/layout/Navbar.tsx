@@ -102,17 +102,15 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          {(profile?.health_plan === 'premium' || profile?.health_plan === 'executive') && (
-            <Button
-              variant="destructive"
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={navigateToEmergency}
-            >
-              <Ambulance className="h-4 w-4" />
-              Emergency
-            </Button>
-          )}
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={navigateToEmergency}
+          >
+            <Ambulance className="h-4 w-4" />
+            Emergency
+          </Button>
         </nav>
 
         {/* Desktop Auth Buttons */}
@@ -204,17 +202,15 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-
-              {(profile?.health_plan === 'premium' || profile?.health_plan === 'executive') && (
-                <Button
-                  variant="destructive"
-                  className="w-full justify-center mt-3 mb-3"
-                  onClick={navigateToEmergency}
-                >
-                  <Ambulance className="mr-2 h-4 w-4" />
-                  Emergency
-                </Button>
-              )}
+              
+              <Button 
+                variant="destructive" 
+                className="w-full justify-center mt-3 mb-3"
+                onClick={navigateToEmergency}
+              >
+                <Ambulance className="mr-2 h-4 w-4" />
+                Emergency
+              </Button>
 
               {user && (
                 <Link

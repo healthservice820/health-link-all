@@ -4,10 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Stethoscope, Star, MapPin, CalendarCheck } from "lucide-react";
 
-import { useNavigate } from "react-router-dom";
-
 const DoctorFinder = () => {
-  const navigate = useNavigate();
   // Mock doctor data
   const doctors = [
     {
@@ -69,8 +66,8 @@ const DoctorFinder = () => {
           <div className="flex items-center justify-between mb-8">
             <TabsList className="grid grid-cols-4 overflow-auto sm:grid-cols-7">
               {specialties.map((specialty, index) => (
-                <TabsTrigger
-                  key={index}
+                <TabsTrigger 
+                  key={index} 
                   value={index === 0 ? "all" : specialty.toLowerCase()}
                   className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap"
                 >
@@ -86,10 +83,10 @@ const DoctorFinder = () => {
                 <Card key={doctor.id} className="overflow-hidden transition-all hover:shadow-md">
                   <CardContent className="p-0">
                     <div className="relative">
-                      <img
-                        src={doctor.image}
-                        alt={doctor.name}
-                        className="w-full h-48 object-cover object-center"
+                      <img 
+                        src={doctor.image} 
+                        alt={doctor.name} 
+                        className="w-full h-48 object-cover object-center" 
                       />
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                         <div className="flex justify-between items-end">
@@ -116,9 +113,8 @@ const DoctorFinder = () => {
                         <CalendarCheck className="h-4 w-4 text-healthcare-primary" />
                         <span className="text-sm">{doctor.availability}</span>
                       </div>
-                      <Button
+                      <Button 
                         className="w-full bg-healthcare-primary hover:bg-healthcare-accent"
-                        onClick={() => navigate('/book-doctor')}
                       >
                         Book Appointment
                       </Button>
