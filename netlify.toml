@@ -1,2 +1,6 @@
 [build.env]
   FORCE_JS_BUNDLER = "true"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
